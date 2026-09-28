@@ -36,7 +36,7 @@
   h1,h2{text-wrap:balance;}
 
   .app{
-    max-width:1600px;
+    max-width:1880px;
     margin:0 auto;
     padding-block:28px 56px;
     display:flex;
@@ -309,34 +309,36 @@
      overflowing top-to-bottom on a short/landscape window. */
   .wheel-card{
     width:100%;
-    max-width:960px;
+    max-width:1420px;
     margin:0 auto;
     background:
       radial-gradient(120% 90% at 50% 26%, #1F6E4D 0%, #12492F 40%, #082C1C 74%, var(--felt-dark) 100%);
     border:1px solid #04120B;
     border-radius:20px;
     box-shadow:var(--shadow), inset 0 0 60px rgba(0,0,0,.5);
-    padding:clamp(24px,4vw,48px) clamp(16px,3vw,36px) clamp(20px,3vw,36px);
+    padding:clamp(40px,5vw,72px) clamp(28px,4vw,56px) clamp(32px,4vw,64px);
   }
   .wheel-stage{
     position:relative;
-    width:min(100%, 68vh, 780px);
+    width:min(100%, 82vh, 1040px);
     margin:0 auto;
   }
 
-  /* Camera: a fixed clipping frame; .wheel-rig scales/leans during a spin,
-     so the frame naturally crops it as it grows. */
+  /* Camera: the wheel leans back (setDiscSquash) and grows slightly
+     (setRigCamera) during a spin, but .wheel-viewport is never clipped —
+     no overflow:hidden, and the rig scales from dead-center (50% 50%), so
+     the whole disc + gold rim stays fully visible at every frame instead
+     of being cropped against a fixed frame. The felt card's generous
+     padding gives the modest zoom room to breathe. */
   .wheel-viewport{
     position:relative;
     width:100%;
     aspect-ratio:1/1;
-    overflow:hidden;
-    border-radius:14px;
   }
   .wheel-rig{
     position:absolute;
     inset:0;
-    transform-origin:50% 6%;
+    transform-origin:50% 50%;
     will-change:transform;
   }
   .wheel-shadow{
@@ -380,12 +382,12 @@
     display:block;
     border-radius:50%;
     box-shadow:
-      0 0 0 2px var(--gold-dark),
-      0 0 0 5px var(--gold),
-      0 0 0 7px var(--gold-bright),
-      0 0 0 9px var(--gold),
-      0 0 0 13px var(--gold-dark),
-      0 0 0 15px var(--gold),
+      0 0 0 3px var(--gold-dark),
+      0 0 0 7px var(--gold),
+      0 0 0 9px var(--gold-bright),
+      0 0 0 12px var(--gold),
+      0 0 0 17px var(--gold-dark),
+      0 0 0 20px var(--gold),
       inset 0 0 26px rgba(0,0,0,.5),
       inset 0 0 3px rgba(255,255,255,.12),
       0 0 46px 8px rgba(242,200,120,.16);
@@ -487,7 +489,7 @@
             <div class="wheel-shadow" aria-hidden="true"></div>
             <div class="pointer" aria-hidden="true"></div>
             <div class="wheel-disc" id="wheelDisc">
-              <canvas id="wheel" width="700" height="700" role="img" aria-label="참가자 이름이 적힌 돌림판"></canvas>
+              <canvas id="wheel" width="900" height="900" role="img" aria-label="참가자 이름이 적힌 돌림판"></canvas>
               <div class="wheel-sheen" aria-hidden="true"></div>
             </div>
           </div>
@@ -527,18 +529,18 @@
   ];
   var confettiColors = slicePalette.map(function(p){ return p.inner; }).concat(["#F2DA8C","#C6A030"]);
 
-  // ---------- Camera move (spin → lean back → zoom into the top) ----------
+  // ---------- Camera move (spin → lean back → grow slightly) ----------
   // REST_SQUASH: the wheel is a plain circle when nothing is happening.
   // TARGET_SQUASH: vertical scale once fully leaned back. A literal cos(15°)
   // (~0.97) is nearly indistinguishable from a full circle on screen, so the
   // value here is chosen to actually read as "reclining," not a literal
   // degree conversion.
-  // TARGET_SCALE: 1/0.6 — scaling the rig by this much, anchored near the top
-  // edge (see .wheel-rig's transform-origin), makes the viewport's fixed
-  // frame show exactly the top 60% of the wheel, by construction.
+  // TARGET_SCALE: the rig grows by this much, scaling from dead-center
+  // (see .wheel-rig's transform-origin) and never clipped by the viewport —
+  // the whole disc, gold rim included, stays on screen at every frame.
   var REST_SQUASH = 1;
   var TARGET_SQUASH = 0.45;
-  var TARGET_SCALE = 1/0.6;
+  var TARGET_SCALE = 1.14;
 
   var defaultNames = ["김민준","이서연","박도윤","최지우","정하은","강주원"];
 
@@ -598,7 +600,7 @@
     var n = Math.max(slices.length, 1);
     var W = canvas.width, H = canvas.height;
     var cx = W/2, cy = H/2;
-    var rx = W/2 - 26;
+    var rx = W/2 - 34;
     var segRad = (Math.PI*2) / n;
 
     ctx.clearRect(0,0,W,H);
@@ -629,10 +631,10 @@
 
       // dark undercoat + bright gold pinstripe — reads as a beveled metal
       // divider between wedges instead of a flat line
-      ctx.lineWidth = 4.5;
+      ctx.lineWidth = 5.8;
       ctx.strokeStyle = "rgba(0,0,0,.55)";
       ctx.stroke();
-      ctx.lineWidth = 1.4;
+      ctx.lineWidth = 1.8;
       ctx.strokeStyle = "#F2DA8C";
       ctx.stroke();
 
@@ -647,7 +649,7 @@
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#F5EEDF";
-      ctx.font = "700 24px 'Noto Sans KR', sans-serif";
+      ctx.font = "700 30px 'Noto Sans KR', sans-serif";
       ctx.shadowColor = "rgba(0,0,0,.6)";
       ctx.shadowBlur = 5;
       var label = slices[i].name;
@@ -659,10 +661,10 @@
     // inner rim ring, echoing the outer gold bezel for continuity
     ctx.beginPath();
     ctx.arc(cx,cy,rx,0,Math.PI*2);
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 5.1;
     ctx.strokeStyle = "rgba(0,0,0,.5)";
     ctx.stroke();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.6;
     ctx.strokeStyle = "#F2DA8C";
     ctx.stroke();
 
@@ -677,7 +679,7 @@
     ctx.arc(cx,cy,hubR,0,Math.PI*2);
     ctx.fillStyle = hubGrad;
     ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.6;
     ctx.strokeStyle = "rgba(0,0,0,.5)";
     ctx.stroke();
   }
