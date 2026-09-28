@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>밤의 룰렛 · 랜덤 뽑기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#eee9dc; --muted:#aaa59d; --night:#111416; --panel:#1a1d1f; --line:#343738; --gold:#b59a60; --wine:#742f3b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; min-height:100vh; background:var(--night); color:var(--ink); font-family:"Noto Sans KR",sans-serif; }
+    button, input { font:inherit; }
+    button { cursor:pointer; }
+    .view { min-height:100vh; }
+    .view[hidden] { display:none; }
+    .view.entering { animation:fadeIn .3s ease both; }
+    .view.leaving { animation:fadeOut .3s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(5px) } to { opacity:1; transform:none } }
+    @keyframes fadeOut { from { opacity:1 } to { opacity:0; transform:translateY(-4px) } }
+
+    /* 준비 화면 */
+    #setupView { padding:clamp(26px,6vh,68px) 18px 34px; }
+    .setup-card { width:min(720px,100%); margin:auto; }
+    .eyebrow { color:var(--gold); font-family:Cinzel,serif; font-size:11px; letter-spacing:.25em; }
+    h1 { margin:9px 0 8px; font-family:"Noto Serif KR",serif; font-size:clamp(29px,5vw,42px); line-height:1.25; }
+    .intro { margin:0 0 31px; color:var(--muted); font-size:14px; }
+    .form-panel, .history-panel { border:1px solid var(--line); background:rgba(255,255,255,.025); border-radius:12px; }
+    .form-panel { padding:20px; }
+    .label { display:block; margin:0 0 9px; color:#c9c4ba; font-size:13px; font-weight:700; }
+    .input-row { display:flex; gap:9px; }
+    input[type="text"] { min-width:0; flex:1; height:47px; padding:0 14px; border:1px solid #454849; border-radius:7px; outline:none; background:#101213; color:var(--ink); }
+    input[type="text"]:focus { border-color:#a18750; box-shadow:0 0 0 3px rgba(181,154,96,.12); }
+    .primary, .subtle, .chip-delete { border:0; border-radius:7px; }
+    .primary { min-width:85px; padding:0 16px; background:#b29a62; color:#161512; font-family:"Noto Serif KR",serif; font-weight:900; }
+    .primary:hover { background:#c7ae74; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; min-height:30px; margin:18px 0 19px; }
+    .empty { width:100%; padding:8px 0; color:#797b7b; font-size:13px; }
+    .chip { display:flex; align-items:center; gap:8px; max-width:100%; padding:6px 7px 6px 11px; border:1px solid #424443; border-radius:99px; background:#242728; font-size:13px; }
+    .chip.is-excluded { opacity:.45; text-decoration:line-through; }
+    .chip-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chip-delete { width:22px; height:22px; padding:0; background:#353839; color:#d3cec2; line-height:1; }
+    .chip-delete:hover { background:#713640; color:white; }
+    .settings-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:16px; border-top:1px solid #303333; }
+    .check-wrap { display:flex; align-items:center; gap:9px; color:#d4cfc6; font-size:13px; cursor:pointer; }
+    .check-wrap input { accent-color:#b29a62; width:16px; height:16px; }
+    .subtle { padding:8px 10px; color:#aaa79f; background:transparent; font-size:12px; }
+    .subtle:hover { color:#f0e9dc; background:#292c2d; }
+    .history-panel { margin-top:15px; padding:17px 20px; }
+    .history-head { display:flex; justify-content:space-between; align-items:center; }
+    .history-head h2 { margin:0; font-size:13px; color:#cbc6bd; }
+    #history { margin:10px 0 0; padding:0; list-style:none; }
+    #history li { display:flex; justify-content:space-between; gap:15px; padding:8px 0; border-top:1px solid rgba(255,255,255,.05); color:#d9d4c9; font-size:13px; }
+    #history time { flex:none; color:#777a78; font-size:11px; }
+    .stage-link { display:flex; align-items:center; justify-content:center; width:100%; min-height:56px; margin-top:27px; border:1px solid #a18957; border-radius:8px; background:linear-gradient(100deg,#917842,#b69c62,#8f763f); color:#171611; font-family:"Noto Serif KR",serif; font-size:17px; font-weight:900; text-decoration:none; }
+    .stage-link:hover { filter:brightness(1.1); }
+
+    /* 무대 화면 */
+    #stageView { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:visible; padding:22px 20px; background:radial-gradient(ellipse 50% 48% at 50% 11%, rgba(154,127,73,.19), transparent 66%), radial-gradient(ellipse at 50% 38%, #202020 0%, #121516 52%, #0d0f10 100%); }
+    .edit-link { position:absolute; z-index:5; top:22px; left:22px; padding:8px 12px; border:1px solid rgba(222,212,190,.24); border-radius:6px; background:rgba(13,15,15,.46); color:#d8d2c7; font-size:13px; }
+    .edit-link:hover { border-color:#b59a60; color:#fff; }
+    .stage-content { display:flex; flex-direction:column; align-items:center; width:100%; max-height:100%; }
+    .stage-kicker { margin:0 0 6px; color:#c1a768; font-family:Cinzel,serif; font-size:10px; letter-spacing:.23em; text-align:center; }
+    .wheel-area { position:relative; display:grid; place-items:center; width:min(100%, 68vh, 780px, calc(100vh - 165px)); aspect-ratio:1; margin:0 auto; overflow:visible; }
+    #wheelShell { position:absolute; width:100%; height:100%; border:2px solid rgba(222,210,179,.7); border-radius:50%; overflow:hidden; background:#202324; transform-origin:center; will-change:transform; }
+    #wheelCanvas, #confettiCanvas { display:block; width:100%; height:100%; }
+    #hub { position:absolute; top:50%; left:50%; z-index:2; width:clamp(32px,7%,54px); aspect-ratio:1; transform:translate(-50%,-50%); border:2px solid #c3aa70; border-radius:50%; background:radial-gradient(circle at 35% 30%, #746541, #302b22 68%); box-shadow:0 1px 5px rgba(0,0,0,.5); pointer-events:none; }
+    .pointer { position:absolute; z-index:4; top:-1px; left:50%; width:0; height:0; transform:translateX(-50%); border-right:15px solid transparent; border-left:15px solid transparent; border-top:32px solid #e5d7b6; filter:drop-shadow(0 2px 3px rgba(0,0,0,.75)); pointer-events:none; }
+    #confettiCanvas { position:absolute; inset:0; z-index:3; width:100%; height:100%; pointer-events:none; }
+    #spinButton { min-width:174px; height:52px; margin-top:clamp(-1px,-.5vh,4px); border:1px solid #c4ab70; border-radius:7px; background:linear-gradient(110deg,#9e8248,#c1a567,#967841); color:#17150f; font-family:"Noto Serif KR",serif; font-size:17px; font-weight:900; box-shadow:0 5px 20px rgba(0,0,0,.25); }
+    #spinButton:hover:not(:disabled) { filter:brightness(1.12); }
+    #spinButton:disabled { cursor:wait; opacity:.55; }
+    #resultText { min-height:29px; margin:13px 0 0; color:#eee7d7; font-family:"Noto Serif KR",serif; font-size:clamp(17px,3vw,23px); font-weight:700; text-align:center; }
+    .stage-empty { color:#a8a49c; font-size:15px; }
+    @media (max-width:520px) {
+      #setupView { padding:32px 14px 25px; } .form-panel,.history-panel { padding:16px; } .settings-row { align-items:flex-start; flex-direction:column; gap:7px; } .edit-link { top:12px; left:12px; } #stageView { padding:52px 11px 13px; } .wheel-area { width:min(100%, 68vh, calc(100vh - 150px)); } .pointer { border-right-width:12px; border-left-width:12px; border-top-width:27px; } #spinButton { height:48px; margin-top:3px; }
+    }
+    @media (max-height:590px) { .stage-kicker { display:none; } #stageView { padding-top:44px; } }
+  </style>
+</head>
+<body>
+  <main id="setupView" class="view">
+    <section class="setup-card" aria-labelledby="setupTitle">
+      <div class="eyebrow">THE DRAWING ROOM</div>
+      <h1 id="setupTitle">오늘의 돌림판</h1>
+      <p class="intro">이름을 추가하고, 모든 준비가 끝나면 무대로 이동하세요.</p>
+      <div class="form-panel">
+        <label class="label" for="nameInput">참가자 이름</label>
+        <div class="input-row"><input id="nameInput" type="text" maxlength="24" placeholder="이름을 입력하세요" autocomplete="off"><button id="addButton" class="primary" type="button">추가</button></div>
+        <div id="chips" class="chips" aria-live="polite"></div>
+        <div class="settings-row">
+          <label class="check-wrap"><input id="excludeCheck" type="checkbox"> 뽑힌 사람은 다음 판에서 제외</label>
+          <button id="resetButton" class="subtle" type="button">제외 상태 · 기록 초기화</button>
+        </div>
+      </div>
+      <section class="history-panel" aria-labelledby="historyTitle">
+        <div class="history-head"><h2 id="historyTitle">최근 당첨 기록</h2><span class="eyebrow">RECENT</span></div>
+        <ul id="history"></ul>
+      </section>
+      <button id="goStage" class="stage-link" type="button">룰렛 무대로 이동</button>
+    </section>
+  </main>
+
+  <main id="stageView" class="view" hidden>
+    <button id="backButton" class="edit-link" type="button">← 참가자 수정</button>
+    <div class="stage-content">
+      <p class="stage-kicker">FORTUNE FAVORS THE BOLD</p>
+      <div class="wheel-area" id="wheelArea">
+        <div class="pointer" aria-hidden="true"></div>
+        <div id="wheelShell"><canvas id="wheelCanvas" aria-label="참가자 룰렛"></canvas><div id="hub"></div></div>
+        <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+      </div>
+      <button id="spinButton" type="button">돌리기</button>
+      <p id="resultText" aria-live="polite">참가자를 기다리고 있습니다.</p>
+    </div>
+  </main>
+
+  <script>
+  (() => {
+    const KEY = 'quiet-casino-roulette-v1';
+    const $ = id => document.getElementById(id);
+    const el = { setup:$('setupView'), stage:$('stageView'), input:$('nameInput'), add:$('addButton'), chips:$('chips'), exclude:$('excludeCheck'), reset:$('resetButton'), history:$('history'), go:$('goStage'), back:$('backButton'), wheel:$('wheelCanvas'), shell:$('wheelShell'), area:$('wheelArea'), confetti:$('confettiCanvas'), spin:$('spinButton'), result:$('resultText') };
+    let state = { people:[], excludeWinners:false, history:[] };
+    let rotation = 0, spinning = false, confettiPieces = [], confettiFrame = 0;
+    const colors = [
+      ['#9d4b54','#4c1923'], ['#43806d','#163e36'], ['#426b91','#182e4a'], ['#735786','#302041'],
+      ['#ad8a46','#574019'], ['#44484a','#17191a'], ['#a76747','#4b241b'], ['#416d70','#17393d']
+    ];
+    const storage = { load() { try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && Array.isArray(v.people)) state = { people:v.people, excludeWinners:!!v.excludeWinners, history:Array.isArray(v.history) ? v.history : [] }; } catch (_) {} }, save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} } };
+    const activePeople = () => state.people.filter(p => !p.excluded);
+    function safe(text) { return String(text).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function renderSetup() {
+      el.exclude.checked = state.excludeWinners;
+      el.chips.innerHTML = state.people.length ? state.people.map(p => `<span class="chip ${p.excluded?'is-excluded':''}"><span class="chip-name">${safe(p.name)}</span><button class="chip-delete" type="button" data-id="${p.id}" aria-label="${safe(p.name)} 삭제">×</button></span>`).join('') : '<span class="empty">아직 참가자가 없습니다.</span>';
+      el.history.innerHTML = state.history.length ? state.history.slice(0,8).map(h => `<li><span>${safe(h.name)}</span><time>${safe(h.when)}</time></li>`).join('') : '<li class="empty">아직 당첨 기록이 없습니다.</li>';
+    }
+    function addPerson() {
+      const name = el.input.value.trim(); if (!name) { el.input.focus(); return; }
+      state.people.push({ id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, excluded:false });
+      el.input.value = ''; storage.save(); renderSetup(); el.input.focus();
+    }
+    function canvasSize(canvas, host) {
+      const rect = host.getBoundingClientRect(); const size = Math.max(1, Math.round(Math.min(rect.width, rect.height))); const dpr = Math.min(devicePixelRatio || 1, 2);
+      if (canvas.width !== size*dpr || canvas.height !== size*dpr) { canvas.width=size*dpr; canvas.height=size*dpr; }
+      const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); return {ctx,size};
+    }
+    function fitName(ctx, name, maxWidth) { let size=15; ctx.font=`700 ${size}px "Noto Sans KR", sans-serif`; while (ctx.measureText(name).width>maxWidth && size>9) { size--; ctx.font=`700 ${size}px "Noto Sans KR", sans-serif`; } return size; }
+    function drawWheel() {
+      const {ctx,size} = canvasSize(el.wheel, el.shell); const people=activePeople(); const c=size/2, r=size/2;
+      ctx.clearRect(0,0,size,size);
+      if (!people.length) { ctx.fillStyle='#222627'; ctx.beginPath(); ctx.arc(c,c,r,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#aaa69e'; ctx.font='500 15px "Noto Sans KR"'; ctx.textAlign='center'; ctx.fillText('참가자를 추가해 주세요',c,c+5); return; }
+      const slice=Math.PI*2/people.length, start=-Math.PI/2-slice/2;
+      people.forEach((p,i) => { const a=start+i*slice, mid=a+slice/2, pair=colors[i%colors.length]; const grad=ctx.createRadialGradient(c+r*.2*Math.cos(mid),c+r*.2*Math.sin(mid),r*.05,c,c,r); grad.addColorStop(0,pair[0]); grad.addColorStop(1,pair[1]); ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,r,a,a+slice); ctx.closePath(); ctx.fillStyle=grad; ctx.fill(); ctx.strokeStyle='rgba(238,231,215,.34)'; ctx.lineWidth=1; ctx.stroke();
+        ctx.save(); ctx.translate(c,c); ctx.rotate(mid); ctx.textAlign='right'; ctx.textBaseline='middle'; const fontSize=fitName(ctx,p.name, r*.47); ctx.font=`700 ${fontSize}px "Noto Sans KR", sans-serif`; ctx.fillStyle='rgba(255,255,255,.94)'; ctx.shadowColor='rgba(0,0,0,.65)'; ctx.shadowBlur=3; ctx.fillText(p.name,r*.83,0); ctx.restore();
+      });
+    }
+    function drawConfetti() {
+      const {ctx,size} = canvasSize(el.confetti, el.area); ctx.clearRect(0,0,size,size); if (!confettiPieces.length) return;
+      confettiPieces.forEach(p => { ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(0,Math.min(1,p.life/65)); ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore(); p.x+=p.vx; p.y+=p.vy; p.vy+=.08; p.r+=p.vr; p.life--; });
+      confettiPieces=confettiPieces.filter(p=>p.life>0 && p.y<size+30); if(confettiPieces.length) confettiFrame=requestAnimationFrame(drawConfetti); else cancelAnimationFrame(confettiFrame);
+    }
+    function burstConfetti() { cancelAnimationFrame(confettiFrame); const size=el.area.getBoundingClientRect().width; const palette=['#c89d4d','#9f414c','#4e9176','#668fb2','#9a72a9','#e5d8b9']; confettiPieces=Array.from({length:120},(_,i)=>({x:size/2+(Math.random()-.5)*size*.18,y:size*.19+Math.random()*20,vx:(Math.random()-.5)*7,vy:-(Math.random()*5+2),r:Math.random()*6.28,vr:(Math.random()-.5)*.25,w:5+Math.random()*5,h:8+Math.random()*8,color:palette[i%palette.length],life:48+Math.random()*35})); drawConfetti(); }
+    function wheelTransform(angle, scale=1) { el.shell.style.transform=`rotate(${angle}deg) scale(${scale})`; }
+    function showStage() { if (!activePeople().length) { el.result.textContent='먼저 참가자를 한 명 이상 추가해 주세요.'; } else { el.result.textContent='행운의 이름을 골라보세요.'; } drawWheel(); changeView(el.setup,el.stage); }
+    function changeView(from,to) { from.classList.add('leaving'); setTimeout(()=>{ from.hidden=true; from.classList.remove('leaving'); to.hidden=false; to.classList.add('entering'); requestAnimationFrame(()=>to.classList.remove('entering')); },280); }
+    function spin() {
+      const people=activePeople(); if (spinning || !people.length) { el.result.textContent='참가자를 한 명 이상 추가해 주세요.'; return; }
+      spinning=true; el.spin.disabled=true; el.result.textContent='룰렛이 돌고 있습니다…';
+      const winnerIndex=Math.floor(Math.random()*people.length), slice=360/people.length;
+      const desired=-winnerIndex*slice; const normalized=((rotation%360)+360)%360; const minimal=((desired-normalized)%360+360)%360;
+      const turns=6+Math.floor(Math.random()*3); const start=rotation, target=rotation+turns*360+minimal;
+      const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches, duration=reduce?1500:4300, startTime=performance.now();
+      const animate = now => { const t=Math.min(1,(now-startTime)/duration), eased=1-Math.pow(1-t,3); rotation=start+(target-start)*eased; const zoom=reduce?1:1+.15*Math.max(0,Math.min(1,(t-.70)/.30)); wheelTransform(rotation,zoom); if(t<1) requestAnimationFrame(animate); else { rotation=target; wheelTransform(rotation,reduce?1:1.15); finishSpin(people[winnerIndex]); } };
+      requestAnimationFrame(animate);
+    }
+    function finishSpin(winner) { const now=new Date(); const when=now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); state.history.unshift({name:winner.name,when}); state.history=state.history.slice(0,20); if(state.excludeWinners) { const original=state.people.find(p=>p.id===winner.id); if(original) original.excluded=true; } storage.save(); renderSetup(); el.result.textContent=`오늘의 선택은 〈${winner.name}〉`; burstConfetti(); spinning=false; el.spin.disabled=false; }
+    el.add.addEventListener('click',addPerson); el.input.addEventListener('keydown',e=>{if(e.key==='Enter') addPerson();});
+    el.chips.addEventListener('click',e=>{ const b=e.target.closest('[data-id]'); if(!b) return; state.people=state.people.filter(p=>p.id!==b.dataset.id); storage.save(); renderSetup(); });
+    el.exclude.addEventListener('change',()=>{ state.excludeWinners=el.exclude.checked; storage.save(); });
+    el.reset.addEventListener('click',()=>{ state.people.forEach(p=>p.excluded=false); state.history=[]; storage.save(); renderSetup(); });
+    el.go.addEventListener('click',showStage); el.back.addEventListener('click',()=>{ if(!spinning) changeView(el.stage,el.setup); }); el.spin.addEventListener('click',spin);
+    addEventListener('resize',()=>{ drawWheel(); if(confettiPieces.length) drawConfetti(); });
+    storage.load(); renderSetup(); drawWheel();
+  })();
+  </script>
+</body>
+</html>

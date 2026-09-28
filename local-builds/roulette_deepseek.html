@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0b0d">
+<title>돌림판 · 랜덤 뽑기 룰렛</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     토큰 — 어둡고 차분한 단일 테마 (라이트/다크 대응 없음)
+     ============================================================ */
+  :root{
+    --bg:#0a0b0d;
+    --panel:#131519;
+    --panel-2:#191c21;
+    --line:rgba(198,164,98,.18);
+    --line-soft:rgba(255,255,255,.08);
+    --gold:#c6a462;
+    --gold-bright:#e3cd97;
+    --gold-dim:#7d6a3c;
+    --ink:#ece7dd;
+    --ink-2:#a9a39a;
+    --ink-3:#6d6862;
+    --danger:#c98b86;
+    --r:14px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+  }
+  h1,h2,p,ol,ul,li{ margin:0; padding:0; }
+  ol,ul{ list-style:none; }
+  button{ font:inherit; color:inherit; }
+  [hidden]{ display:none !important; }
+
+  .serif{ font-family:"Noto Serif KR",serif; }
+  .cinzel{
+    font-family:"Cinzel",serif;
+    font-weight:500;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+  }
+
+  /* ============================================================
+     화면 전환 — hidden 토글 + 0.3s 페이드
+     ============================================================ */
+  .screen{
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .screen.is-shown{ opacity:1; }
+
+  /* ============================================================
+     1) 참가자 준비 화면
+     ============================================================ */
+  #scrSetup{
+    min-height:100vh;
+    min-height:100dvh;
+    background:
+      radial-gradient(120% 55% at 50% -12%, rgba(198,164,98,.07), transparent 62%),
+      var(--bg);
+  }
+  .setup{
+    width:min(100%,720px);
+    margin:0 auto;
+    padding:34px 20px 0;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  @media (max-width:480px){
+    .setup{ padding:26px 15px 0; gap:18px; }
+  }
+
+  .eyebrow{
+    font-size:11px;
+    color:var(--gold-dim);
+    margin-bottom:9px;
+  }
+  .setup-head h1{
+    font-size:clamp(30px,7vw,40px);
+    font-weight:900;
+    letter-spacing:.02em;
+    line-height:1.15;
+  }
+  .setup-head .sub{
+    margin-top:8px;
+    color:var(--ink-3);
+    font-size:13.5px;
+  }
+
+  .card{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line-soft);
+    border-radius:var(--r);
+    padding:14px;
+  }
+
+  /* 입력 */
+  .field{ display:flex; gap:9px; }
+  .input{
+    flex:1 1 auto;
+    min-width:0;
+    background:#0d0f12;
+    border:1px solid var(--line-soft);
+    border-radius:10px;
+    padding:12px 14px;
+    color:var(--ink);
+    font-size:15px;
+    outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease;
+  }
+  .input::placeholder{ color:#5c5852; }
+  .input:focus{
+    border-color:rgba(198,164,98,.5);
+    box-shadow:0 0 0 3px rgba(198,164,98,.1);
+  }
+  .field-msg{
+    min-height:0;
+    font-size:12.5px;
+    color:var(--danger);
+    padding:0 2px;
+    overflow:hidden;
+    transition:min-height .18s ease, padding .18s ease;
+  }
+  .field-msg.is-on{ min-height:20px; padding-top:8px; }
+
+  /* 버튼 공통 */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink);
+    border-radius:10px;
+    padding:12px 18px;
+    cursor:pointer;
+    touch-action:manipulation;
+    transition:background-color .18s ease, border-color .18s ease, color .18s ease, transform .12s ease;
+  }
+  .btn:hover{ background:rgba(198,164,98,.08); border-color:rgba(198,164,98,.4); }
+  .btn:active{ transform:translateY(1px); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+  .btn-add{
+    flex:0 0 auto;
+    font-weight:700;
+    padding:12px 20px;
+    border-color:rgba(198,164,98,.34);
+    color:var(--gold-bright);
+    background:rgba(198,164,98,.06);
+  }
+  .btn-ghost{
+    padding:8px 14px;
+    font-size:13px;
+    color:var(--ink-2);
+    border-color:var(--line-soft);
+  }
+
+  /* 섹션 */
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .block-title{
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+  .count{ font-size:12.5px; color:var(--ink-3); }
+  .empty{
+    font-size:13px;
+    color:var(--ink-3);
+    padding:14px 2px;
+    border:1px dashed rgba(255,255,255,.08);
+    border-radius:var(--r);
+    text-align:center;
+  }
+
+  /* 참가자 칩 */
+  .chips{ display:flex; flex-wrap:wrap; gap:9px; }
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:4px 5px 4px 14px;
+    border-radius:999px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line-soft);
+    max-width:100%;
+    transition:opacity .2s ease, border-color .2s ease;
+  }
+  .chip:hover{ border-color:rgba(198,164,98,.28); }
+  .chip.is-out{ opacity:.44; }
+  .chip.is-out .chip-name{ text-decoration:line-through; text-decoration-color:rgba(236,231,221,.5); }
+  .chip-name{
+    background:none; border:0; padding:5px 0;
+    font-size:14px; cursor:pointer;
+    max-width:11em;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .chip.is-out .chip-name{ color:var(--ink-2); }
+  .chip-x{
+    flex:0 0 auto;
+    width:24px; height:24px;
+    display:grid; place-items:center;
+    border:0; border-radius:50%;
+    background:rgba(255,255,255,.04);
+    color:var(--ink-3);
+    font-size:11px;
+    cursor:pointer;
+    transition:background-color .16s ease, color .16s ease;
+  }
+  .chip-x:hover{ background:rgba(201,139,134,.2); color:#f0d6d2; }
+
+  /* 옵션 */
+  .options{ display:flex; flex-direction:column; gap:11px; }
+  .opt-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    flex-wrap:wrap;
+  }
+  .check{ display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none; }
+  .check input{ position:absolute; opacity:0; width:0; height:0; }
+  .check-box{
+    flex:0 0 auto;
+    width:19px; height:19px;
+    border-radius:6px;
+    border:1px solid rgba(198,164,98,.4);
+    background:#0d0f12;
+    position:relative;
+    transition:background-color .16s ease, border-color .16s ease;
+  }
+  .check-box::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border-radius:5px;
+    clip-path:polygon(14% 46%, 38% 70%, 86% 22%, 96% 34%, 38% 92%, 4% 58%);
+    opacity:0; transform:scale(.55);
+    transition:opacity .16s ease, transform .16s ease;
+  }
+  .check input:checked + .check-box{ border-color:rgba(198,164,98,.7); }
+  .check input:checked + .check-box::after{ opacity:1; transform:scale(1); }
+  .check input:focus-visible + .check-box{ box-shadow:0 0 0 3px rgba(198,164,98,.18); }
+  .check-text{ font-size:14px; }
+  .hint{ font-size:12.5px; color:var(--ink-3); line-height:1.6; }
+
+  /* 기록 */
+  .history{ display:flex; flex-direction:column; gap:2px; }
+  .hrow{
+    display:flex; align-items:center; gap:12px;
+    padding:9px 12px;
+    border-radius:9px;
+    font-size:14px;
+  }
+  .hrow + .hrow{ border-top:1px solid rgba(255,255,255,.045); }
+  .hrow.is-first{
+    background:rgba(198,164,98,.07);
+    border-top-color:transparent;
+    color:var(--gold-bright);
+  }
+  .hround{
+    flex:0 0 auto;
+    min-width:22px;
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--ink-3);
+    font-family:"Cinzel",serif;
+  }
+  .hrow.is-first .hround{ color:var(--gold-dim); }
+  .hname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* 하단 고정 버튼 */
+  .setup-foot{
+    position:sticky;
+    bottom:0;
+    margin-top:6px;
+    padding:16px 0 22px;
+    background:linear-gradient(to top, var(--bg) 42%, rgba(10,11,13,.86) 72%, rgba(10,11,13,0) 100%);
+  }
+  .btn-primary{
+    width:100%;
+    font-size:17px;
+    font-weight:700;
+    padding:16px 20px;
+    border-radius:12px;
+    border-color:rgba(198,164,98,.45);
+    color:var(--gold-bright);
+    background:linear-gradient(180deg,rgba(198,164,98,.13),rgba(198,164,98,.05));
+  }
+  .btn-primary:hover{
+    background:linear-gradient(180deg,rgba(198,164,98,.22),rgba(198,164,98,.1));
+    border-color:rgba(198,164,98,.7);
+  }
+
+  /* ============================================================
+     2) 룰렛 무대 화면
+     ============================================================ */
+  #scrStage{
+    position:relative;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+    overflow:hidden;
+    background:
+      radial-gradient(58% 50% at 50% 24%, rgba(198,164,98,.13), rgba(198,164,98,.045) 42%, transparent 74%),
+      radial-gradient(90% 60% at 50% 108%, rgba(46,52,62,.5), transparent 72%),
+      #0a0b0d;
+  }
+
+  .stage-top{
+    position:relative;
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:13px 16px 4px;
+  }
+  .stage-top .eyebrow{ margin:0; font-size:10.5px; color:var(--gold-dim); }
+  .btn-back{
+    position:absolute;
+    left:16px; top:50%;
+    transform:translateY(-50%);
+    padding:8px 14px;
+    font-size:13px;
+    color:var(--ink-2);
+    border-color:var(--line-soft);
+    background:rgba(10,11,13,.5);
+  }
+  .btn-back:active{ transform:translateY(-50%); }
+
+  .stage-body{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    padding:0 16px 20px;
+    min-height:0;
+  }
+
+  /* 룰렛 — 캔버스와 테두리가 같은 한 요소 안에 있다 (테두리는 캔버스에 직접 그림) */
+  .wheel-wrap{
+    position:relative;
+    flex:0 0 auto;
+    margin:auto 0;                 /* 남는 세로 공간을 위아래로 흡수 */
+    width:min(100%, 68vh, 780px);
+    aspect-ratio:1 / 1;            /* 항상 정사각형 */
+  }
+  @supports (height:100svh){
+    .wheel-wrap{ width:min(100%, 68svh, 780px); }
+  }
+  /* 세로가 아주 짧은 창에서 잘리지 않도록 하는 안전장치 */
+  @media (max-height:660px){
+    .wheel-wrap{ width:min(100%, 56vh, 780px); }
+    @supports (height:100svh){
+      .wheel-wrap{ width:min(100%, 56svh, 780px); }
+    }
+  }
+  .wheel-wrap::before{
+    content:"";
+    position:absolute;
+    inset:-16%;
+    z-index:-1;
+    pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, rgba(198,164,98,.11), rgba(198,164,98,.03) 46%, transparent 66%);
+  }
+  .wheel-canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    transform-origin:50% 50%;
+    will-change:transform;   /* transition 없음 — 매 프레임 JS로 값을 계산한다 */
+  }
+
+  .pointer{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:20px;
+    height:23px;
+    background:linear-gradient(180deg,#efdcae,#b08f45);
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.6));
+    z-index:3;
+    pointer-events:none;
+  }
+
+  /* 결과 */
+  .result{
+    flex:0 0 auto;
+    text-align:center;
+    max-width:min(100%,720px);
+    padding:0 6px;
+  }
+  .result-label{
+    font-size:10.5px;
+    color:var(--gold-dim);
+    margin-bottom:6px;
+  }
+  .result-name{
+    font-size:clamp(30px,6.4vw,60px);
+    font-weight:900;
+    line-height:1.12;
+    letter-spacing:.01em;
+    color:#f6f1e6;
+    text-shadow:0 0 26px rgba(198,164,98,.3), 0 2px 12px rgba(0,0,0,.55);
+    overflow-wrap:anywhere;
+    word-break:keep-all;
+  }
+  .result-name.pop{ animation:pop .6s cubic-bezier(.2,.85,.25,1) both; }
+  @keyframes pop{
+    0%{ opacity:0; transform:translateY(12px) scale(.9); }
+    55%{ opacity:1; }
+    100%{ opacity:1; transform:none; }
+  }
+  .result-note{
+    min-height:0;
+    font-size:12.5px;
+    color:var(--ink-3);
+    margin-top:6px;
+  }
+  .result-note:empty{ display:none; }
+
+  .btn-spin{
+    flex:0 0 auto;
+    font-size:19px;
+    font-weight:700;
+    padding:16px 74px;
+    border-radius:999px;
+    border-color:rgba(198,164,98,.45);
+    color:var(--gold-bright);
+    background:linear-gradient(180deg,rgba(198,164,98,.14),rgba(198,164,98,.045));
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+    letter-spacing:.04em;
+  }
+  .btn-spin:hover{
+    background:linear-gradient(180deg,rgba(198,164,98,.24),rgba(198,164,98,.1));
+    border-color:rgba(198,164,98,.72);
+  }
+  @media (max-width:480px){
+    .btn-spin{ font-size:17px; padding:14px 54px; }
+    .btn-back{ left:11px; padding:7px 11px; font-size:12px; }
+    .stage-body{ padding:0 12px 16px; }
+  }
+
+  .confetti{
+    position:absolute;
+    inset:0;
+    margin:auto;
+    z-index:5;
+    pointer-events:none;
+  }
+
+  /* 모션 최소화 선호 */
+  @media (prefers-reduced-motion:reduce){
+    .screen{ transition-duration:.001ms; }
+    .result-name.pop{ animation-duration:.001ms; }
+    .btn{ transition-duration:.001ms; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================= 화면 1 — 참가자 준비 ========================= -->
+<section id="scrSetup" class="screen is-shown">
+  <div class="setup">
+    <header class="setup-head">
+      <p class="eyebrow cinzel">Roulette</p>
+      <h1 class="serif">돌림판</h1>
+      <p class="sub">이름을 넣고, 운명을 돌리세요.</p>
+    </header>
+
+    <section class="card">
+      <div class="field">
+        <input id="nameInput" class="input" type="text" maxlength="16"
+               placeholder="참가자 이름" autocomplete="off" enterkeyhint="done" aria-label="참가자 이름">
+        <button id="addBtn" class="btn btn-add" type="button">추가</button>
+      </div>
+      <p id="fieldMsg" class="field-msg" role="status" aria-live="polite"></p>
+    </section>
+
+    <section>
+      <div class="block-head">
+        <h2 class="block-title">참가자</h2>
+        <p id="poolSummary" class="count">0명</p>
+      </div>
+      <ul id="chipList" class="chips"></ul>
+      <p id="chipsEmpty" class="empty">아직 아무도 없습니다. 이름을 추가해 주세요.</p>
+    </section>
+
+    <section class="card options">
+      <div class="opt-row">
+        <label class="check">
+          <input id="excludeToggle" type="checkbox" checked>
+          <span class="check-box" aria-hidden="true"></span>
+          <span class="check-text">뽑힌 사람은 다음 판에서 제외</span>
+        </label>
+        <button id="resetBtn" class="btn btn-ghost" type="button">초기화</button>
+      </div>
+      <p class="hint">당첨된 이름은 룰렛에서 흐려지고 다음 판부터 뽑히지 않습니다. 초기화를 누르면 제외 상태와 기록이 함께 지워집니다.</p>
+    </section>
+
+    <section>
+      <div class="block-head">
+        <h2 class="block-title">최근 당첨 기록</h2>
+      </div>
+      <ol id="historyList" class="history"></ol>
+      <p id="historyEmpty" class="empty">기록이 없습니다.</p>
+    </section>
+
+    <div class="setup-foot">
+      <button id="toStage" class="btn btn-primary serif" type="button">룰렛 무대로 이동</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 화면 2 — 룰렛 무대 ========================= -->
+<section id="scrStage" class="screen stage" hidden>
+  <div class="stage-top">
+    <button id="toSetup" class="btn btn-back" type="button">← 참가자 수정</button>
+    <p class="eyebrow cinzel">The Draw</p>
+  </div>
+
+  <div class="stage-body">
+    <div id="wheelWrap" class="wheel-wrap">
+      <div id="pointer" class="pointer" aria-hidden="true"></div>
+      <canvas id="wheelCanvas" class="wheel-canvas" aria-label="룰렛"></canvas>
+    </div>
+
+    <div class="result">
+      <p id="resultLabel" class="result-label cinzel">Result</p>
+      <p id="resultName" class="result-name serif" aria-live="polite">—</p>
+      <p id="resultNote" class="result-note">돌리기를 눌러 시작하세요</p>
+    </div>
+
+    <button id="spinBtn" class="btn btn-spin serif" type="button">돌리기</button>
+  </div>
+
+  <canvas id="confettiCanvas" class="confetti" aria-hidden="true"></canvas>
+</section>
+
+<script>
+(function(){
+  'use strict';
+
+  const TAU = Math.PI * 2;
+  const $ = function(id){ return document.getElementById(id); };
+  const clamp = function(v,a,b){ return v < a ? a : (v > b ? b : v); };
+  const smooth = function(x){ return x * x * (3 - 2 * x); };
+  const dprNow = function(){ return Math.min(window.devicePixelRatio || 1, 2); };
+
+  /* 조각 색 — 원색 대신 채도 낮춘 보석톤 (가넷/에메랄드/사파이어/자수정/앤티크골드/오닉스/코퍼/슬레이트틸) */
+  const PALETTE = [
+    { light:'#b25664', base:'#8a3743', dark:'#421821' }, /* 가넷 레드 */
+    { light:'#3f9a7d', base:'#2b6b57', dark:'#113228' }, /* 에메랄드 */
+    { light:'#4a76b0', base:'#2f5486', dark:'#142644' }, /* 사파이어 */
+    { light:'#8a66a8', base:'#644780', dark:'#2e1f42' }, /* 자수정 */
+    { light:'#c9a75c', base:'#9c7c39', dark:'#523e16' }, /* 앤티크 골드 */
+    { light:'#4a4e55', base:'#2e3238', dark:'#0e1014' }, /* 오닉스 블랙 */
+    { light:'#b87a4c', base:'#8d5a33', dark:'#432813' }, /* 코퍼 */
+    { light:'#4e8b93', base:'#37676e', dark:'#143438' }  /* 슬레이트 틸 */
+  ];
+
+  /* ---------- 요소 ---------- */
+  const scrSetup     = $('scrSetup'),  scrStage   = $('scrStage');
+  const nameInput    = $('nameInput'), addBtn     = $('addBtn'),  fieldMsg = $('fieldMsg');
+  const chipList     = $('chipList'),  chipsEmpty = $('chipsEmpty'), poolSummary = $('poolSummary');
+  const excludeToggle= $('excludeToggle'), resetBtn = $('resetBtn');
+  const historyList  = $('historyList'), historyEmpty = $('historyEmpty');
+  const toStage      = $('toStage'),   toSetup    = $('toSetup');
+  const wheelWrap    = $('wheelWrap'), wheelCanvas= $('wheelCanvas'), pointer = $('pointer');
+  const spinBtn      = $('spinBtn');
+  const resultLabel  = $('resultLabel'), resultName = $('resultName'), resultNote = $('resultNote');
+  const confettiCanvas = $('confettiCanvas');
+  const wctx = wheelCanvas.getContext('2d');
+  const cctx = confettiCanvas.getContext('2d');
+
+  /* ---------- 상태 ---------- */
+  const STORE_KEY = 'roulette.draw.v1';
+  let participants = [];      /* [{name, out}] */
+  let history = [];           /* [{name, round}] */
+  let excludeWinners = true;
+
+  let angle = -Math.PI / 2;   /* 누적 회전각 — 절대 0으로 리셋하지 않는다 */
+  let scale = 1;
+  let spinning = false;
+
+  let wheelBitmap = null;
+  let wheelPx = 0;
+  let confettiSide = 0;
+  let confettiRaf = 0;
+
+  const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let reduced = reduceMQ.matches;
+  if (reduceMQ.addEventListener) reduceMQ.addEventListener('change', function(e){ reduced = e.matches; });
+  else if (reduceMQ.addListener) reduceMQ.addListener(function(e){ reduced = e.matches; });
+
+  /* ============================================================
+     저장 / 불러오기 (실패해도 죽지 않게 try/catch)
+     ============================================================ */
+  function save(){
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        v:1, participants: participants, history: history, excludeWinners: excludeWinners
+      }));
+    }catch(e){ /* 저장 실패는 무시 */ }
+  }
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.participants)){
+        participants = d.participants
+          .filter(function(p){ return p && typeof p.name === 'string' && p.name.trim(); })
+          .slice(0, 40)
+          .map(function(p){ return { name: String(p.name).slice(0,16), out: !!p.out }; });
+      }
+      if (Array.isArray(d.history)){
+        history = d.history
+          .filter(function(h){ return h && typeof h.name === 'string'; })
+          .slice(-60)
+          .map(function(h, i){ return { name: String(h.name).slice(0,16), round: (h.round|0) || (i+1) }; });
+      }
+      if (typeof d.excludeWinners === 'boolean') excludeWinners = d.excludeWinners;
+    }catch(e){ /* 깨진 데이터는 무시하고 빈 상태로 시작 */ }
+  }
+
+  /* ============================================================
+     화면 1 — 참가자 목록 / 기록 (상태를 다루는 곳은 여기뿐)
+     ============================================================ */
+  let msgTimer = 0;
+  function msg(text){
+    fieldMsg.textContent = text || '';
+    fieldMsg.classList.toggle('is-on', !!text);
+    clearTimeout(msgTimer);
+    if (text) msgTimer = setTimeout(function(){ msg(''); }, 2600);
+  }
+
+  function renderSetup(){
+    const outCount = participants.filter(function(p){ return p.out; }).length;
+    const poolCount = participants.length - outCount;
+    poolSummary.textContent = outCount
+      ? participants.length + '명 · 제외 ' + outCount + ' · 룰렛 ' + poolCount + '명'
+      : participants.length + '명';
+
+    chipList.textContent = '';
+    participants.forEach(function(p, i){
+      const li = document.createElement('li');
+      li.className = 'chip' + (p.out ? ' is-out' : '');
+
+      const nb = document.createElement('button');
+      nb.type = 'button';
+      nb.className = 'chip-name';
+      nb.textContent = p.name;
+      nb.title = p.out ? '눌러서 룰렛에 복귀' : '눌러서 이번 판에서 제외';
+      nb.addEventListener('click', function(){
+        p.out = !p.out;
+        save(); rebuildWheel(); renderSetup();
+      });
+
+      const xb = document.createElement('button');
+      xb.type = 'button';
+      xb.className = 'chip-x';
+      xb.textContent = '✕';
+      xb.setAttribute('aria-label', p.name + ' 삭제');
+      xb.title = '삭제';
+      xb.addEventListener('click', function(){
+        participants.splice(i, 1);
+        save(); rebuildWheel(); renderSetup();
+      });
+
+      li.appendChild(nb);
+      li.appendChild(xb);
+      chipList.appendChild(li);
+    });
+    chipsEmpty.hidden = participants.length > 0;
+
+    historyList.textContent = '';
+    for (let i = history.length - 1, shown = 0; i >= 0 && shown < 12; i--, shown++){
+      const h = history[i];
+      const li = document.createElement('li');
+      li.className = 'hrow' + (shown === 0 ? ' is-first' : '');
+      const r = document.createElement('span');
+      r.className = 'hround';
+      r.textContent = h.round;
+      const n = document.createElement('span');
+      n.className = 'hname';
+      n.textContent = h.name;
+      li.appendChild(r); li.appendChild(n);
+      historyList.appendChild(li);
+    }
+    historyEmpty.hidden = history.length > 0;
+  }
+
+  function addParticipant(){
+    const name = nameInput.value.replace(/\s+/g, ' ').trim();
+    if (!name){ msg('이름을 입력해 주세요'); nameInput.focus(); return; }
+    if (participants.length >= 40){ msg('참가자는 최대 40명까지 넣을 수 있어요'); return; }
+    if (participants.some(function(p){ return p.name === name; })){ msg('이미 있는 이름이에요'); return; }
+    participants.push({ name:name, out:false });
+    nameInput.value = '';
+    msg('');
+    save(); rebuildWheel(); renderSetup();
+    nameInput.focus();
+  }
+
+  addBtn.addEventListener('click', addParticipant);
+  nameInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); addParticipant(); }
+  });
+  nameInput.addEventListener('input', function(){ if (fieldMsg.classList.contains('is-on')) msg(''); });
+
+  excludeToggle.addEventListener('change', function(){
+    excludeWinners = excludeToggle.checked;
+    save();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    participants.forEach(function(p){ p.out = false; });
+    history = [];
+    save(); rebuildWheel(); renderSetup();
+  });
+
+  /* ============================================================
+     화면 전환 — hidden 토글 + 0.3초 페이드
+     ============================================================ */
+  let switching = false;
+  function switchTo(target){
+    if (switching) return;
+    const cur = document.querySelector('.screen.is-shown');
+    if (cur === target) return;
+    switching = true;
+    const dur = reduced ? 0 : 300;
+
+    const done = function(){
+      if (cur){ cur.hidden = true; cur.classList.remove('is-shown'); }
+      if (target === scrSetup) renderSetup();     /* 돌아올 때 목록/기록을 다시 그린다 */
+      target.hidden = false;
+      void target.offsetWidth;
+      target.classList.add('is-shown');
+      if (target === scrStage){
+        requestAnimationFrame(function(){ rebuildWheel(); sizeConfetti(); });
+      }
+      switching = false;
+    };
+
+    if (cur && dur > 0){
+      cur.classList.remove('is-shown');
+      setTimeout(done, dur);
+    } else {
+      done();
+    }
+  }
+
+  toStage.addEventListener('click', function(){ switchTo(scrStage); });
+  toSetup.addEventListener('click', function(){ if (!spinning) switchTo(scrSetup); });
+
+  /* ============================================================
+     룰렛 캔버스 — 그리기 (테두리까지 캔버스 안에 직접 그린다)
+     ============================================================ */
+  function fitCanvas(canvas, size){
+    const dpr = dprNow();
+    const w = Math.round(size * dpr);
+    if (canvas.width !== w || canvas.height !== w){
+      canvas.width = w; canvas.height = w;
+    }
+  }
+
+  function fitText(b, text, maxW){
+    if (b.measureText(text).width <= maxW) return text;
+    let t = text;
+    while (t.length > 1 && b.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t + '…';
+  }
+
+  /* 룰렛 그림을 오프스크린에 한 번 그려두고, 매 프레임은 회전시켜 그리기만 한다 */
+  function buildBitmap(size){
+    const dpr = dprNow();
+    const bmp = document.createElement('canvas');
+    bmp.width = bmp.height = Math.round(size * dpr);
+    const b = bmp.getContext('2d');
+    b.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const cx = size / 2, cy = size / 2;
+    const R = size / 2 - 2;                 /* 바깥 테두리 2px 자리 */
+    const list = participants;
+    const n = list.length;
+
+    /* 바닥 원 */
+    b.beginPath(); b.arc(cx, cy, R, 0, TAU);
+    b.fillStyle = '#16181c'; b.fill();
+
+    if (n > 0){
+      const seg = TAU / n;
+      /* 1) 조각 채우기 */
+      for (let i = 0; i < n; i++){
+        const a0 = i * seg, a1 = a0 + seg, mid = a0 + seg / 2;
+        const c = PALETTE[i % PALETTE.length];
+
+        b.beginPath();
+        b.moveTo(cx, cy);
+        b.arc(cx, cy, R, a0, a1);
+        b.closePath();
+
+        /* 조각마다 중심이 밝고 테두리가 어두운 방사형 그라디언트 → 곡면처럼 보인다 */
+        let g;
+        if (n === 1){
+          g = b.createRadialGradient(cx, cy, 0, cx, cy, R);
+          g.addColorStop(0, c.light);
+          g.addColorStop(0.62, c.base);
+          g.addColorStop(1, c.dark);
+        } else {
+          const gx = cx + Math.cos(mid) * R * 0.56;
+          const gy = cy + Math.sin(mid) * R * 0.56;
+          g = b.createRadialGradient(gx, gy, 0, gx, gy, R * 0.66);
+          g.addColorStop(0, c.light);
+          g.addColorStop(0.52, c.base);
+          g.addColorStop(1, c.dark);
+        }
+        b.fillStyle = g;
+        b.fill();
+
+        /* 조각 구분선 — 아주 얇고 어둡게 */
+        if (n > 1){
+          b.strokeStyle = 'rgba(6,7,9,.55)';
+          b.lineWidth = 1;
+          b.stroke();
+        }
+
+        /* 제외된 참가자는 조각을 가라앉힌다 */
+        if (list[i].out){
+          b.fillStyle = 'rgba(16,18,22,.7)';
+          b.fill();
+        }
+      }
+
+      /* 2) 바깥쪽 비네팅 (입체감) */
+      const vg = b.createRadialGradient(cx, cy, R * 0.34, cx, cy, R);
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(0.7, 'rgba(0,0,0,0.06)');
+      vg.addColorStop(1, 'rgba(0,0,0,0.46)');
+      b.beginPath(); b.arc(cx, cy, R, 0, TAU);
+      b.fillStyle = vg; b.fill();
+
+      /* 3) 조각 이름 — 반드시 산세리프(Noto Sans KR) */
+      for (let i = 0; i < n; i++){
+        const seg = TAU / n;
+        const mid = i * seg + seg / 2;
+        const arcLen = seg * R * 0.62;
+        if (arcLen < 11) continue;                       /* 너무 좁으면 생략 */
+
+        let fs = Math.min(R * 0.135, arcLen * 0.8);
+        fs = clamp(fs, 9, 27);
+
+        const flip = Math.cos(mid) < 0;                  /* 왼쪽 반쪽은 뒤집어야 똑바로 읽힌다 */
+        b.save();
+        b.translate(cx, cy);
+        b.rotate(flip ? mid + Math.PI : mid);
+        b.textAlign = flip ? 'left' : 'right';
+        b.textBaseline = 'middle';
+        b.font = '700 ' + fs.toFixed(1) + 'px "Noto Sans KR", system-ui, sans-serif';
+        const label = fitText(b, list[i].name, R * 0.6);
+        b.shadowColor = 'rgba(0,0,0,.62)';
+        b.shadowBlur = 4;
+        b.shadowOffsetY = 1;
+        b.fillStyle = list[i].out ? 'rgba(240,238,233,.32)' : 'rgba(255,255,255,.94)';
+        b.fillText(label, flip ? -(R * 0.87) : R * 0.87, 0);
+        b.restore();
+      }
+    }
+
+    /* 4) 룰렛 테두리 — 얇은 단색 선 하나 (다중 링/box-shadow 없음) */
+    b.beginPath();
+    b.arc(cx, cy, R - 1, 0, TAU);
+    b.lineWidth = 2;
+    b.strokeStyle = 'rgba(198,164,98,.55)';
+    b.stroke();
+
+    return bmp;
+  }
+
+  function rebuildWheel(){
+    const size = Math.round(wheelWrap.clientWidth);
+    if (size < 40){ wheelPx = 0; wheelBitmap = null; return; }  /* 숨겨진 상태 */
+    wheelPx = size;
+    fitCanvas(wheelCanvas, size);
+    wheelBitmap = buildBitmap(size);
+    renderFrame();
+    updateTransform();
+  }
+
+  /* 중앙 허브 캡 하나만 — 회전과 무관하게 항상 같은 자리 */
+  function drawHub(ctx, cx, cy, R){
+    const r = Math.max(9, R * 0.105);
+    const g = ctx.createRadialGradient(cx - r * 0.34, cy - r * 0.42, r * 0.08, cx, cy, r);
+    g.addColorStop(0, '#f2e4c0');
+    g.addColorStop(0.42, '#c6a462');
+    g.addColorStop(1, '#54431f');
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU);
+    ctx.fillStyle = g; ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,.26)';
+    ctx.stroke();
+  }
+
+  function renderFrame(){
+    if (!wheelBitmap || !wheelPx) return;
+    const dpr = dprNow();
+    const size = wheelPx;
+    wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    wctx.clearRect(0, 0, size, size);
+
+    wctx.save();
+    wctx.translate(size / 2, size / 2);
+    wctx.rotate(angle);
+    wctx.drawImage(wheelBitmap, -size / 2, -size / 2, size, size);
+    wctx.restore();
+
+    drawHub(wctx, size / 2, size / 2, size / 2 - 2);
+  }
+
+  /* 캔버스와 포인터를 같은 배율로 맞춰 움직인다 */
+  function updateTransform(){
+    if (wheelCanvas) wheelCanvas.style.transform = 'scale(' + scale.toFixed(4) + ')';
+    const half = (wheelWrap.clientWidth || 0) / 2;
+    const dy = 8 - (scale - 1) * half;   /* 확대된 만큼 포인터도 바깥으로 */
+    pointer.style.transform = 'translate(-50%, calc(-100% + ' + dy.toFixed(2) + 'px))';
+  }
+
+  /* ============================================================
+     스핀
+     ============================================================ */
+  function setResult(name, note, label){
+    if (label !== undefined) resultLabel.textContent = label;
+    resultName.textContent = name;
+    resultNote.textContent = note || '';
+  }
+
+  function spin(){
+    if (spinning) return;
+    if (participants.length < 2){
+      setResult('—', '참가자를 2명 이상 추가해 주세요');
+      return;
+    }
+
+    /* 뽑을 수 있는 사람이 1명 이하면 새 판을 연다 */
+    let autoReset = false;
+    let act = [];
+    participants.forEach(function(p, i){ if (!p.out) act.push(i); });
+    if (act.length <= 1){
+      participants.forEach(function(p){ p.out = false; });
+      act = participants.map(function(_, i){ return i; });
+      autoReset = true;
+      save();
+      rebuildWheel();
+    }
+
+    const n = participants.length;                 /* 룰렛에는 전원이 그려져 있다 */
+    const seg = TAU / n;
+    const winner = act[Math.floor(Math.random() * act.length)];
+
+    /* 목표각 = 현재각 + (6~8바퀴) + 당첨 조각 중앙까지 가는 최소 회전각
+       — 바퀴 수는 반드시 정수여야 한다. 소수 바퀴는 그만큼 어긋나서 엉뚱한 조각에 멈춘다. */
+    const need = -Math.PI / 2 - (winner + 0.5) * seg;     /* 포인터는 12시 방향 */
+    let diff = (need - angle) % TAU;
+    if (diff < 0) diff += TAU;
+    const turns = 6 + Math.floor(Math.random() * 3);      /* 6 · 7 · 8 */
+    const target = angle + turns * TAU + diff;
+
+    const a0 = angle;
+    const s0 = scale;
+    const t0 = performance.now();
+    const dur = 5200;
+
+    spinning = true;
+    spinBtn.disabled = true;
+    setResult('', '', 'Drawing');
+    resultName.classList.remove('pop');
+
+    function frame(now){
+      const p = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);              /* easeOutCubic */
+      angle = a0 + (target - a0) * e;
+
+      if (reduced){
+        scale = 1;                                   /* 모션 최소화: 확대 없이 회전만 */
+      } else if (p < 0.12){
+        scale = s0 + (1 - s0) * smooth(p / 0.12);    /* 이전 확대 상태를 부드럽게 1배로 */
+      } else if (p < 0.7){
+        scale = 1;
+      } else {
+        /* 진행률 70~100% 구간에서 원 전체가 그대로 1배 → 1.15배로 커진다 (잘림 없음) */
+        const q = (p - 0.7) / 0.3;
+        scale = 1 + 0.15 * smooth(q);
+      }
+
+      updateTransform();
+      renderFrame();
+
+      if (p < 1) requestAnimationFrame(frame);
+      else finish(winner, autoReset);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function finish(idx, autoReset){
+    spinning = false;
+    spinBtn.disabled = false;
+
+    const name = participants[idx].name;
+    history.push({ name: name, round: history.length + 1 });
+    if (history.length > 60) history.splice(0, history.length - 60);
+    if (excludeWinners) participants[idx].out = true;
+    save();
+
+    resultLabel.textContent = 'Result';
+    resultName.textContent = name;
+    resultName.classList.remove('pop');
+    void resultName.offsetWidth;
+    resultName.classList.add('pop');
+    resultNote.textContent = autoReset ? '모두 뽑혀서 제외를 초기화하고 새 판을 열었어요' : '';
+
+    /* 확대된 상태 그대로 — 제외 표시만 다시 칠한다 (회전각은 그대로라 조각 위치 안 바뀜) */
+    rebuildWheel();
+
+    launchConfetti();
+  }
+
+  spinBtn.addEventListener('click', spin);
+
+  document.addEventListener('keydown', function(e){
+    if (scrStage.hidden || spinning) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); spin(); }
+  });
+
+  /* ============================================================
+     컨페티
+     ============================================================ */
+  function sizeConfetti(){
+    const w = scrStage.clientWidth, h = scrStage.clientHeight;
+    if (!w || !h) return;
+    const side = Math.round(clamp(Math.min(w, h), 280, 1400));
+    if (side === confettiSide) return;
+    confettiSide = side;
+    const dpr = dprNow();
+    confettiCanvas.style.width = side + 'px';
+    confettiCanvas.style.height = side + 'px';
+    confettiCanvas.width = Math.round(side * dpr);
+    confettiCanvas.height = Math.round(side * dpr);
+  }
+
+  function launchConfetti(){
+    sizeConfetti();
+    if (!confettiSide) return;
+    if (confettiRaf) cancelAnimationFrame(confettiRaf);
+
+    const dpr = dprNow();
+    const W = confettiCanvas.width / dpr, H = confettiCanvas.height / dpr;
+    cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cctx.clearRect(0, 0, W, H);
+
+    const COLORS = ['#e3cd97','#c6a462','#b25664','#2b6b57','#2f5486','#644780','#8d5a33','#37676e','#ece7dd'];
+    const N = reduced ? 40 : 160;
+    const cx = W / 2, cy = H * 0.46;
+    const parts = [];
+    for (let i = 0; i < N; i++){
+      const a = Math.random() * TAU, sp = 3 + Math.random() * 9;
+      parts.push({
+        x: cx + (Math.random() - 0.5) * W * 0.24,
+        y: cy + (Math.random() - 0.5) * H * 0.14,
+        vx: Math.cos(a) * sp * 0.9,
+        vy: Math.sin(a) * sp - 6.6,
+        w: 5 + Math.random() * 7,
+        h: 8 + Math.random() * 10,
+        rot: reduced ? 0 : Math.random() * TAU,
+        vr: reduced ? 0 : (Math.random() - 0.5) * 0.38,
+        color: COLORS[(Math.random() * COLORS.length) | 0]
+      });
+    }
+
+    let last = performance.now();
+    function tick(now){
+      const dt = Math.min(48, now - last);
+      last = now;
+      const k = dt / 16.667;
+      cctx.clearRect(0, 0, W, H);
+      let alive = 0;
+      for (let i = 0; i < parts.length; i++){
+        const p = parts[i];
+        p.vy += 0.34 * k;
+        p.vx *= Math.pow(0.985, k);
+        p.vy *= Math.pow(0.992, k);
+        p.x += p.vx * k;
+        p.y += p.vy * k;
+        p.rot += p.vr * k;
+        if (p.y < H + 70){
+          alive++;
+          cctx.save();
+          cctx.translate(p.x, p.y);
+          cctx.rotate(p.rot);
+          cctx.fillStyle = p.color;
+          cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          cctx.restore();
+        }
+      }
+      if (alive && !scrStage.hidden) confettiRaf = requestAnimationFrame(tick);
+      else { cctx.clearRect(0, 0, W, H); confettiRaf = 0; }
+    }
+    confettiRaf = requestAnimationFrame(tick);
+  }
+
+  /* ============================================================
+     리사이즈 / 초기화
+     ============================================================ */
+  let resizeRaf = 0;
+  function onResize(){
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(function(){
+      resizeRaf = 0;
+      rebuildWheel();
+      sizeConfetti();
+    });
+  }
+
+  if (window.ResizeObserver){
+    new ResizeObserver(onResize).observe(wheelWrap);
+  }
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
+
+  /* ---------- 시작 ---------- */
+  load();
+  excludeToggle.checked = excludeWinners;
+  renderSetup();
+  updateTransform();
+
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ rebuildWheel(); });
+  }
+  window.addEventListener('load', function(){ rebuildWheel(); sizeConfetti(); });
+})();
+</script>
+</body>
+</html>

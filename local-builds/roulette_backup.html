@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>돌림판 — 랜덤 뽑기 룰렛</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07060a;
+    --panel:#121016;
+    --panel-line:rgba(214,175,102,.18);
+    --gold-1:#caa049;
+    --gold-2:#f0d38a;
+    --gold-3:#6b4e1e;
+    --gold-deep:#2e2210;
+    --cream:#f4ead0;
+    --muted:#9a8f7c;
+    --danger:#b25563;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Noto Sans KR',system-ui,-apple-system,'Malgun Gothic',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,.brand{font-family:'Cinzel','Noto Sans KR',serif}
+  button{font-family:inherit;cursor:pointer}
+  input{font-family:inherit}
+
+  .screen{
+    min-height:100dvh;
+    opacity:1;
+    transition:opacity .15s ease;
+  }
+  .screen.fade{opacity:0}
+
+  /* ---------- Screen 1: setup ---------- */
+  #screen-setup{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:40px 16px 32px;
+    background:
+      radial-gradient(120% 50% at 50% 0%, rgba(150,110,50,.08), transparent 60%),
+      var(--bg);
+  }
+  .setup-card{
+    width:100%;
+    max-width:720px;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:18px;
+    padding:28px 28px 24px;
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+  }
+  .setup-card h1{
+    margin:0 0 4px;
+    font-size:22px;
+    letter-spacing:.03em;
+    color:var(--gold-2);
+  }
+  .setup-sub{
+    margin:0 0 22px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .input-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .input-row input{
+    flex:1;
+    min-width:0;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--panel-line);
+    background:#0d0b10;
+    color:var(--cream);
+    font-size:15px;
+    outline:none;
+  }
+  .input-row input:focus{border-color:var(--gold-1)}
+  .input-row input::placeholder{color:#5f574a}
+  .btn-add{
+    padding:0 20px;
+    border-radius:10px;
+    border:1px solid var(--gold-3);
+    background:linear-gradient(180deg,#3a2c12,#24190a);
+    color:var(--gold-2);
+    font-weight:700;
+    font-size:14px;
+    transition:filter .15s ease;
+  }
+  .btn-add:hover{filter:brightness(1.2)}
+
+  .chip-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    min-height:40px;
+    margin-bottom:18px;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(0,0,0,.22);
+    border:1px dashed var(--panel-line);
+  }
+  .chip-list.empty{
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 8px 6px 12px;
+    border-radius:999px;
+    background:#1a1620;
+    border:1px solid var(--panel-line);
+    font-size:13.5px;
+    color:var(--cream);
+  }
+  .chip.excluded{opacity:.45}
+  .chip .tag{
+    font-size:10px;
+    color:var(--gold-1);
+    border:1px solid var(--gold-3);
+    border-radius:999px;
+    padding:1px 6px;
+  }
+  .chip button{
+    width:20px;height:20px;
+    border-radius:50%;
+    border:none;
+    background:rgba(178,85,99,.18);
+    color:#e79aa6;
+    font-size:13px;
+    line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .chip button:hover{background:rgba(178,85,99,.35)}
+
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:13.5px;
+    color:var(--muted);
+    margin-bottom:22px;
+    user-select:none;
+  }
+  .checkbox-row input{
+    width:16px;height:16px;
+    accent-color:var(--gold-1);
+  }
+
+  .history-section h2{
+    margin:0 0 10px;
+    font-size:13px;
+    letter-spacing:.04em;
+    color:var(--gold-1);
+    text-transform:uppercase;
+  }
+  .history-list{
+    list-style:none;
+    margin:0 0 20px;
+    padding:0;
+    max-height:150px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .history-list li{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    padding:8px 12px;
+    border-radius:8px;
+    background:rgba(0,0,0,.2);
+    color:var(--cream);
+  }
+  .history-list li .t{color:var(--muted);font-variant-numeric:tabular-nums}
+  .history-empty{
+    font-size:13px;
+    color:var(--muted);
+    padding:10px 2px 20px;
+  }
+
+  .setup-actions{
+    display:flex;
+    justify-content:flex-end;
+  }
+  .btn-ghost{
+    padding:9px 16px;
+    border-radius:9px;
+    border:1px solid var(--panel-line);
+    background:transparent;
+    color:var(--muted);
+    font-size:12.5px;
+  }
+  .btn-ghost:hover{color:var(--cream);border-color:var(--gold-3)}
+
+  .setup-warning{
+    max-width:720px;
+    width:100%;
+    text-align:center;
+    color:#e79aa6;
+    font-size:13px;
+    margin-top:12px;
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+  .setup-warning.show{opacity:1}
+
+  .go-stage-btn{
+    margin-top:22px;
+    padding:14px 30px;
+    border-radius:999px;
+    border:1px solid var(--gold-1);
+    background:linear-gradient(180deg,var(--gold-2),var(--gold-1));
+    color:#241a08;
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.02em;
+    box-shadow:0 8px 24px rgba(202,160,73,.25);
+  }
+  .go-stage-btn:hover{filter:brightness(1.06)}
+
+  /* ---------- Screen 2: stage ---------- */
+  #screen-stage{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100dvh;
+    padding:20px 16px 40px;
+    background:
+      radial-gradient(58% 50% at 50% 6%, rgba(255,196,120,.18), transparent 66%),
+      radial-gradient(90% 60% at 50% 100%, rgba(0,0,0,.5), transparent 70%),
+      var(--bg);
+    overflow:hidden;
+  }
+  .back-btn{
+    align-self:flex-start;
+    padding:9px 16px;
+    border-radius:9px;
+    border:1px solid var(--panel-line);
+    background:rgba(0,0,0,.25);
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:8px;
+  }
+  .back-btn:hover{color:var(--cream);border-color:var(--gold-3)}
+
+  .stage-center{
+    flex:1;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+  }
+
+  .wheel-area{
+    position:relative;
+    width:min(100%, 68vh, 780px);
+    aspect-ratio:1/1;
+    margin:0 auto;
+  }
+  .pointer{
+    position:absolute;
+    top:-2px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:15px solid transparent;
+    border-right:15px solid transparent;
+    border-top:28px solid var(--gold-2);
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.65));
+    z-index:5;
+  }
+  .pointer::after{
+    content:'';
+    position:absolute;
+    top:-28px;left:-15px;
+    width:30px;height:28px;
+    border-left:15px solid transparent;
+    border-right:15px solid transparent;
+    border-top:28px solid transparent;
+  }
+  .wheel-viewport{
+    position:absolute;
+    inset:30px;
+    border-radius:50%;
+    overflow:hidden;
+  }
+  .wheel-zoom{
+    position:absolute;
+    inset:28px;
+    border-radius:50%;
+    overflow:hidden;
+    background:#0b0a0c;
+    transform-origin:50% 6%;
+    will-change:transform;
+    box-shadow:
+      0 0 0 3px var(--gold-deep),
+      0 0 0 7px #d9b269,
+      0 0 0 10px #5c4620,
+      0 0 0 15px #f0d38a,
+      0 0 0 18px var(--gold-deep),
+      0 0 0 23px #c9a054,
+      0 0 0 26px #241a08,
+      0 25px 70px rgba(0,0,0,.7),
+      0 0 60px rgba(255,190,110,.06);
+  }
+  #wheelCanvas{
+    position:absolute;
+    inset:0;
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  .wheel-sheen{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    pointer-events:none;
+    background:
+      radial-gradient(60% 42% at 32% 18%, rgba(255,255,255,.20), transparent 65%),
+      radial-gradient(80% 60% at 70% 85%, rgba(0,0,0,.22), transparent 70%);
+  }
+  .hub{
+    position:absolute;
+    top:50%;left:50%;
+    width:10%;height:10%;
+    min-width:28px;min-height:28px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff3c0, #d9b269 45%, #7a5c22 100%);
+    box-shadow:0 0 0 2px #3a2a10, 0 4px 10px rgba(0,0,0,.6), inset 0 -3px 5px rgba(0,0,0,.35);
+    z-index:4;
+  }
+
+  .result-text{
+    min-height:34px;
+    font-size:clamp(18px,3vw,26px);
+    font-weight:700;
+    color:var(--gold-2);
+    text-shadow:0 0 18px rgba(240,211,138,.35);
+    text-align:center;
+    letter-spacing:.02em;
+  }
+
+  .btn-spin{
+    padding:16px 54px;
+    border-radius:999px;
+    border:1px solid var(--gold-1);
+    background:linear-gradient(180deg,var(--gold-2),var(--gold-1));
+    color:#241a08;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:.08em;
+    box-shadow:0 10px 30px rgba(202,160,73,.3);
+    transition:filter .15s ease, transform .15s ease;
+  }
+  .btn-spin:hover:not(:disabled){filter:brightness(1.08)}
+  .btn-spin:active:not(:disabled){transform:scale(.98)}
+  .btn-spin:disabled{opacity:.5;cursor:default}
+
+  @media (max-width:480px){
+    .setup-card{padding:22px 18px 20px}
+    .btn-spin{padding:14px 40px;font-size:15px}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============ Screen 1: Participant setup ============ -->
+  <div id="screen-setup" class="screen">
+    <div class="setup-card">
+      <h1>참가자 준비</h1>
+      <p class="setup-sub">이름을 추가하고 룰렛 무대로 이동하세요.</p>
+
+      <div class="input-row">
+        <input id="nameInput" type="text" placeholder="이름을 입력하고 Enter" maxlength="20" autocomplete="off">
+        <button id="addBtn" class="btn-add">추가</button>
+      </div>
+
+      <div id="chipList" class="chip-list empty">아직 참가자가 없어요</div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="excludeCheckbox">
+        <span>뽑힌 사람은 다음 판에서 제외</span>
+      </label>
+
+      <div class="history-section">
+        <h2>최근 당첨 기록</h2>
+        <ul id="historyList" class="history-list"></ul>
+        <div id="historyEmpty" class="history-empty">아직 기록이 없어요</div>
+      </div>
+
+      <div class="setup-actions">
+        <button id="resetBtn" class="btn-ghost">초기화 (제외 상태 · 기록 지우기)</button>
+      </div>
+    </div>
+
+    <div id="setupWarning" class="setup-warning">참가자를 2명 이상 추가해주세요.</div>
+    <button id="goToStageBtn" class="go-stage-btn">룰렛 무대로 이동 →</button>
+  </div>
+
+  <!-- ============ Screen 2: Roulette stage ============ -->
+  <div id="screen-stage" class="screen" hidden>
+    <button id="backBtn" class="back-btn">← 참가자 수정</button>
+
+    <div class="stage-center">
+      <div class="wheel-area">
+        <div class="pointer"></div>
+        <div class="wheel-viewport">
+          <div class="wheel-zoom" id="wheelZoom">
+            <canvas id="wheelCanvas"></canvas>
+            <div class="wheel-sheen"></div>
+          </div>
+        </div>
+        <div class="hub"></div>
+      </div>
+
+      <div id="resultText" class="result-text">스핀 버튼을 눌러 시작하세요</div>
+      <button id="spinBtn" class="btn-spin">SPIN</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "roulette_casino_state_v1";
+
+  var JEWEL_COLORS = [
+    {center:"#b8606d", edge:"#4a1a22"}, // 가넷 레드
+    {center:"#549c82", edge:"#173a2c"}, // 에메랄드
+    {center:"#5279a8", edge:"#16273f"}, // 사파이어
+    {center:"#87639c", edge:"#2c1c3a"}, // 자수정
+    {center:"#cfa658", edge:"#5c4620"}, // 앤티크 골드
+    {center:"#4e4e54", edge:"#131316"}, // 오닉스 블랙
+    {center:"#bb7850", edge:"#4f2c1c"}, // 코퍼
+    {center:"#5f8f8f", edge:"#1c3232"}  // 슬레이트 틸
+  ];
+
+  function uid(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "p" + Date.now() + Math.random().toString(16).slice(2);
+  }
+
+  // ---------- state ----------
+  var state = {participants: [], history: [], excludePrevious: false};
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.participants)){
+          state.participants = parsed.participants;
+          state.history = Array.isArray(parsed.history) ? parsed.history : [];
+          state.excludePrevious = !!parsed.excludePrevious;
+        }
+      }
+    }catch(e){}
+  }
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  // ---------- DOM refs ----------
+  var screenSetup = document.getElementById("screen-setup");
+  var screenStage = document.getElementById("screen-stage");
+
+  var nameInput = document.getElementById("nameInput");
+  var addBtn = document.getElementById("addBtn");
+  var chipList = document.getElementById("chipList");
+  var excludeCheckbox = document.getElementById("excludeCheckbox");
+  var historyList = document.getElementById("historyList");
+  var historyEmpty = document.getElementById("historyEmpty");
+  var resetBtn = document.getElementById("resetBtn");
+  var goToStageBtn = document.getElementById("goToStageBtn");
+  var setupWarning = document.getElementById("setupWarning");
+
+  var backBtn = document.getElementById("backBtn");
+  var wheelZoom = document.getElementById("wheelZoom");
+  var wheelCanvas = document.getElementById("wheelCanvas");
+  var spinBtn = document.getElementById("spinBtn");
+  var resultText = document.getElementById("resultText");
+
+  // ---------- screen switching ----------
+  function switchTo(targetEl){
+    var current = document.querySelector(".screen:not([hidden])");
+    if(current === targetEl) return;
+    if(current){
+      current.classList.add("fade");
+      setTimeout(function(){
+        current.hidden = true;
+        current.classList.remove("fade");
+        targetEl.hidden = false;
+        targetEl.classList.add("fade");
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            targetEl.classList.remove("fade");
+          });
+        });
+        if(targetEl === screenStage){
+          renderStage();
+        }
+      }, 150);
+    }
+  }
+
+  // ---------- setup screen rendering ----------
+  function renderChips(){
+    chipList.innerHTML = "";
+    if(state.participants.length === 0){
+      chipList.classList.add("empty");
+      chipList.textContent = "아직 참가자가 없어요";
+      return;
+    }
+    chipList.classList.remove("empty");
+    state.participants.forEach(function(p){
+      var chip = document.createElement("div");
+      chip.className = "chip" + (p.excluded ? " excluded" : "");
+
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = p.name;
+      chip.appendChild(nameSpan);
+
+      if(p.excluded){
+        var tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = "제외됨";
+        chip.appendChild(tag);
+      }
+
+      var delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.textContent = "×";
+      delBtn.addEventListener("click", function(){
+        state.participants = state.participants.filter(function(x){ return x.id !== p.id; });
+        save();
+        renderChips();
+      });
+      chip.appendChild(delBtn);
+
+      chipList.appendChild(chip);
+    });
+  }
+
+  function renderHistory(){
+    historyList.innerHTML = "";
+    if(state.history.length === 0){
+      historyEmpty.hidden = false;
+      return;
+    }
+    historyEmpty.hidden = true;
+    state.history.slice(0, 15).forEach(function(h){
+      var li = document.createElement("li");
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = h.name;
+      var timeSpan = document.createElement("span");
+      timeSpan.className = "t";
+      timeSpan.textContent = h.time;
+      li.appendChild(nameSpan);
+      li.appendChild(timeSpan);
+      historyList.appendChild(li);
+    });
+  }
+
+  function addParticipant(){
+    var name = nameInput.value.trim();
+    if(!name) return;
+    state.participants.push({id: uid(), name: name, excluded: false});
+    nameInput.value = "";
+    save();
+    renderChips();
+    nameInput.focus();
+  }
+
+  function showSetupWarning(msg){
+    setupWarning.textContent = msg;
+    setupWarning.classList.add("show");
+    clearTimeout(showSetupWarning._t);
+    showSetupWarning._t = setTimeout(function(){
+      setupWarning.classList.remove("show");
+    }, 2200);
+  }
+
+  addBtn.addEventListener("click", addParticipant);
+  nameInput.addEventListener("keydown", function(e){
+    if(e.key === "Enter") addParticipant();
+  });
+
+  excludeCheckbox.addEventListener("change", function(){
+    state.excludePrevious = excludeCheckbox.checked;
+    save();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    state.participants.forEach(function(p){ p.excluded = false; });
+    state.history = [];
+    save();
+    renderChips();
+    renderHistory();
+  });
+
+  goToStageBtn.addEventListener("click", function(){
+    if(state.participants.length < 2){
+      showSetupWarning("참가자를 2명 이상 추가해주세요.");
+      return;
+    }
+    switchTo(screenStage);
+  });
+
+  backBtn.addEventListener("click", function(){
+    switchTo(screenSetup);
+  });
+
+  // ---------- wheel drawing ----------
+  function drawWheel(angleRad){
+    var size = wheelCanvas.clientWidth;
+    if(size <= 0) return;
+    var dpr = window.devicePixelRatio || 1;
+    wheelCanvas.width = size * dpr;
+    wheelCanvas.height = size * dpr;
+    var ctx = wheelCanvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+
+    var cx = size / 2, cy = size / 2;
+    var radius = size / 2 - 2;
+    var n = state.participants.length;
+    if(n === 0) return;
+
+    var sliceAngle = (Math.PI * 2) / n;
+    var startOffset = -Math.PI / 2 + (angleRad || 0);
+
+    state.participants.forEach(function(p, i){
+      var a0 = startOffset + i * sliceAngle;
+      var a1 = a0 + sliceAngle;
+      var colors = JEWEL_COLORS[i % JEWEL_COLORS.length];
+
+      var grad = ctx.createRadialGradient(cx, cy, radius * 0.04, cx, cy, radius);
+      grad.addColorStop(0, colors.center);
+      grad.addColorStop(1, colors.edge);
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, a0, a1);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      if(p.excluded){
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.fill();
+      }
+
+      // label
+      var midAngle = a0 + sliceAngle / 2;
+      var flip = Math.cos(midAngle) < 0;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(midAngle + (flip ? Math.PI : 0));
+      ctx.textAlign = flip ? "left" : "right";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = p.excluded ? "rgba(230,225,210,0.35)" : "#f6ecd4";
+      ctx.shadowColor = "rgba(0,0,0,0.65)";
+      ctx.shadowBlur = 3;
+      var fontSize = Math.max(11, Math.min(20, radius * 0.09));
+      ctx.font = "600 " + fontSize + "px 'Noto Sans KR', sans-serif";
+      var label = p.name.length > 9 ? p.name.slice(0, 8) + "…" : p.name;
+      ctx.fillText(label, flip ? -(radius - 16) : radius - 16, 0);
+      ctx.restore();
+    });
+
+    // dividers: black undercoat then thin gold pinstripe
+    ctx.save();
+    ctx.translate(cx, cy);
+    for(var i2 = 0; i2 < n; i2++){
+      var a = startOffset + i2 * sliceAngle;
+      var x = Math.cos(a) * radius;
+      var y = Math.sin(a) * radius;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = "rgba(8,6,4,0.92)";
+      ctx.lineWidth = Math.max(3, radius * 0.02);
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+    for(var i3 = 0; i3 < n; i3++){
+      var a2 = startOffset + i3 * sliceAngle;
+      var x2 = Math.cos(a2) * radius;
+      var y2 = Math.sin(a2) * radius;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = "rgba(232,197,120,0.85)";
+      ctx.lineWidth = Math.max(1, radius * 0.006);
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // crisp outer boundary
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.lineWidth = Math.max(2, radius * 0.01);
+    ctx.strokeStyle = "rgba(8,6,4,0.9)";
+    ctx.stroke();
+  }
+
+  // ---------- camera (zoom-in crop) ----------
+  var DEG2RAD = Math.PI / 180;
+  var VISIBLE_TOP_FRACTION = 0.6; // only the top 60% of the wheel stays in frame at full zoom
+  var TARGET_SCALE = 1 / VISIBLE_TOP_FRACTION;
+
+  function setWheelZoom(scale){
+    wheelZoom.style.transform = scale === 1 ? "" : "scale(" + scale + ")";
+  }
+  function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+  // ---------- spin logic ----------
+  var currentRotation = 0;
+  var spinning = false;
+  var reduceMotionMQ = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+  function renderStage(){
+    updateResultPlaceholder();
+    setWheelZoom(1);
+    requestAnimationFrame(function(){ drawWheel(currentRotation * DEG2RAD); });
+  }
+
+  function updateResultPlaceholder(){
+    var eligible = getEligible();
+    if(eligible.length === 0){
+      resultText.textContent = "모든 참가자가 이미 뽑혔어요 — 참가자 화면에서 초기화해주세요.";
+      spinBtn.disabled = true;
+    }else{
+      spinBtn.disabled = false;
+    }
+  }
+
+  function getEligible(){
+    if(state.excludePrevious){
+      return state.participants.filter(function(p){ return !p.excluded; });
+    }
+    return state.participants.slice();
+  }
+
+  function spin(){
+    if(spinning) return;
+    var eligible = getEligible();
+    if(eligible.length === 0){
+      updateResultPlaceholder();
+      return;
+    }
+
+    var winner = eligible[Math.floor(Math.random() * eligible.length)];
+    var idx = state.participants.indexOf(winner);
+    var n = state.participants.length;
+    var sliceAngleDeg = 360 / n;
+
+    var jitter = (Math.random() - 0.5) * sliceAngleDeg * 0.7;
+    var centerFromTop = idx * sliceAngleDeg + sliceAngleDeg / 2 + jitter;
+    var targetMod = ((360 - centerFromTop) % 360 + 360) % 360;
+
+    var spins = 6 + Math.floor(Math.random() * 3);
+    var newRotation = currentRotation - (currentRotation % 360) + spins * 360 + targetMod;
+    if(newRotation <= currentRotation) newRotation += 360;
+
+    var startRotation = currentRotation;
+    var deltaRotation = newRotation - startRotation;
+    var duration = 4800;
+    var reduceMotion = !!(reduceMotionMQ && reduceMotionMQ.matches);
+
+    spinning = true;
+    spinBtn.disabled = true;
+    resultText.textContent = "돌아가는 중...";
+
+    var camStart = 0.12;
+    var camEnd = 0.82;
+    var startTs = null;
+
+    function frame(ts){
+      if(startTs === null) startTs = ts;
+      var elapsed = ts - startTs;
+      var t = Math.min(1, elapsed / duration);
+      var rotEase = easeOutCubic(t);
+      var angleDeg = startRotation + deltaRotation * rotEase;
+
+      var scaleNow = 1;
+      if(!reduceMotion){
+        var camT = camEnd > camStart ? Math.min(1, Math.max(0, (t - camStart) / (camEnd - camStart))) : 1;
+        var camEase = easeOutCubic(camT);
+        scaleNow = 1 + (TARGET_SCALE - 1) * camEase;
+      }
+
+      drawWheel(angleDeg * DEG2RAD);
+      setWheelZoom(scaleNow);
+
+      if(t < 1){
+        currentRotation = angleDeg;
+        requestAnimationFrame(frame);
+      }else{
+        currentRotation = newRotation;
+        finishSpin(winner);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function finishSpin(winner){
+    spinning = false;
+    resultText.textContent = "🎉 " + winner.name + " 당첨!";
+
+    var now = new Date();
+    var time = now.toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
+    state.history.unshift({name: winner.name, time: time});
+    state.history = state.history.slice(0, 30);
+
+    if(state.excludePrevious){
+      winner.excluded = true;
+    }
+
+    save();
+    renderHistory();
+    renderChips();
+    drawWheel(currentRotation * DEG2RAD);
+    updateResultPlaceholder();
+  }
+
+  spinBtn.addEventListener("click", spin);
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if(!screenStage.hidden) drawWheel(currentRotation * DEG2RAD);
+    }, 120);
+  });
+
+  // ---------- init ----------
+  load();
+  excludeCheckbox.checked = state.excludePrevious;
+  renderChips();
+  renderHistory();
+})();
+</script>
+</body>
+</html>

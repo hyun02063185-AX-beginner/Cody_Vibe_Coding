@@ -1,0 +1,929 @@
+<title>돌림판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  [hidden]{ display:none !important; }
+
+  :root{
+    --bg:#0f0c0a;
+    --bg-deep:#0a0807;
+    --surface:#1c1712;
+    --surface-2:#241d16;
+    --border-subtle:#3c3122;
+    --border-gold:#8a6f38;
+    --text:#ece2d2;
+    --text-dim:#b3a58c;
+    --text-faint:#7d7260;
+    --gold:#c9a24a;
+    --gold-bright:#e6c274;
+    --danger:#9c4b45;
+    --danger-bright:#c06860;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100%;
+  }
+
+  h1,h2,h3{
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    text-wrap:balance;
+    margin:0;
+  }
+
+  .eyebrow, .section-label{
+    font-family:'Cinzel', 'Noto Serif KR', serif;
+    font-weight:600;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-size:.72rem;
+    margin:0 0 .5rem;
+  }
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+
+  .app-shell{
+    padding-inline:16px;
+    padding-block:32px 48px;
+  }
+
+  .screen{
+    opacity:1;
+    transition:opacity .3s ease;
+  }
+  .screen.fading{
+    opacity:0;
+  }
+
+  /* ---------- Screen 1: setup ---------- */
+  .setup-screen{
+    max-width:720px;
+    margin-inline:auto;
+    display:flex;
+    flex-direction:column;
+    gap:1.75rem;
+  }
+
+  .setup-header{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
+  }
+
+  .setup-header h1{
+    font-size:2.4rem;
+    color:var(--gold-bright);
+    letter-spacing:.02em;
+  }
+
+  .lede{
+    color:var(--text-dim);
+    margin:0;
+    font-size:.95rem;
+  }
+
+  .input-row{
+    display:flex;
+    gap:.6rem;
+  }
+
+  .input-row input{
+    flex:1;
+    min-width:0;
+    background:var(--surface);
+    border:1px solid var(--border-subtle);
+    border-radius:10px;
+    color:var(--text);
+    font-size:1rem;
+    padding:.85rem 1rem;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .input-row input:focus{
+    outline:2px solid var(--gold);
+    outline-offset:1px;
+    border-color:var(--gold);
+  }
+  .input-row input::placeholder{
+    color:var(--text-faint);
+  }
+
+  .btn{
+    border-radius:10px;
+    border:1px solid transparent;
+    padding:.85rem 1.3rem;
+    font-weight:700;
+    font-size:.95rem;
+    transition:filter .15s ease, transform .15s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn:focus-visible{ outline:2px solid var(--gold-bright); outline-offset:2px; }
+
+  .btn-gold{
+    background:linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color:#241a08;
+    font-family:'Noto Serif KR', serif;
+    font-weight:700;
+  }
+  .btn-gold:hover{ filter:brightness(1.08); }
+
+  .btn-ghost{
+    background:transparent;
+    border-color:var(--border-subtle);
+    color:var(--text-dim);
+  }
+  .btn-ghost:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  .btn-primary{
+    background:linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color:#241a08;
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    font-size:1.1rem;
+    width:100%;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary:disabled{
+    background:var(--surface-2);
+    color:var(--text-faint);
+    cursor:not-allowed;
+    filter:none;
+  }
+
+  .btn-large{ padding:1.05rem 1.5rem; }
+
+  .chip-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.55rem;
+    min-height:2.2rem;
+  }
+
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    background:var(--surface);
+    border:1px solid var(--border-subtle);
+    border-radius:999px;
+    padding:.4rem .5rem .4rem .95rem;
+    font-size:.9rem;
+    color:var(--text);
+  }
+  .chip.drawn{
+    color:var(--text-faint);
+    border-color:var(--border-subtle);
+    text-decoration:line-through;
+    opacity:.6;
+  }
+  .chip button{
+    background:var(--surface-2);
+    border:none;
+    color:var(--text-dim);
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    line-height:1;
+    font-size:.85rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .chip button:hover{ background:var(--danger); color:#fff; }
+
+  .chip-list .empty-hint{
+    color:var(--text-faint);
+    font-size:.85rem;
+    padding:.4rem 0;
+  }
+
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    color:var(--text-dim);
+    font-size:.92rem;
+  }
+  .checkbox-row input{
+    width:18px;
+    height:18px;
+    accent-color:var(--gold);
+  }
+
+  .setup-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:.6rem;
+    border-top:1px solid var(--border-subtle);
+    border-bottom:1px solid var(--border-subtle);
+    padding-block:1rem;
+  }
+
+  .summary-text{
+    color:var(--text-faint);
+    font-size:.85rem;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .history-block{ display:flex; flex-direction:column; gap:.5rem; }
+
+  .history-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:.4rem;
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .history-list li{
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    background:var(--surface);
+    border:1px solid var(--border-subtle);
+    border-radius:8px;
+    padding:.6rem .85rem;
+    font-size:.88rem;
+  }
+  .history-list li .h-name{ color:var(--text); font-weight:500; }
+  .history-list li .h-time{ color:var(--text-faint); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .history-list li.empty{
+    color:var(--text-faint);
+    justify-content:center;
+    border-style:dashed;
+  }
+
+  /* ---------- Screen 2: stage ---------- */
+  .stage-screen{
+    position:relative;
+    min-height:calc(100% - 80px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .stage-glow{
+    position:absolute;
+    top:-10%;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(1100px, 140vw);
+    height:60%;
+    background:radial-gradient(ellipse at center top, rgba(230,194,116,.16), rgba(230,194,116,.05) 45%, transparent 72%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .back-btn{
+    align-self:flex-start;
+    position:relative;
+    z-index:2;
+    margin-bottom:1.25rem;
+  }
+
+  .stage-body{
+    position:relative;
+    z-index:1;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+  }
+
+  .stage-body .eyebrow{ text-align:center; }
+
+  .wheel-wrap{
+    position:relative;
+    width:min(100%, 68vh, 780px);
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  #wheelCanvas{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    border:2px solid var(--border-gold);
+    background:var(--bg-deep);
+    transform-origin:50% 50%;
+    display:block;
+  }
+
+  #confettiCanvas{
+    position:absolute;
+    inset:-20%;
+    width:140%;
+    height:140%;
+    pointer-events:none;
+  }
+
+  .pointer{
+    position:absolute;
+    top:-4px;
+    left:50%;
+    translate:-50% 0;
+    width:0;
+    height:0;
+    border-left:14px solid transparent;
+    border-right:14px solid transparent;
+    border-top:24px solid var(--gold-bright);
+    z-index:3;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));
+  }
+
+  .stage-status{
+    color:var(--text-faint);
+    font-size:.85rem;
+    margin:0;
+    min-height:1.1em;
+  }
+
+  .btn-spin{
+    max-width:260px;
+    letter-spacing:.05em;
+  }
+
+  .result-text{
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    font-size:1.6rem;
+    color:var(--gold-bright);
+    min-height:2.4em;
+    text-align:center;
+    margin:0;
+  }
+
+  @media (max-width:480px){
+    .setup-header h1{ font-size:1.9rem; }
+    .result-text{ font-size:1.25rem; }
+  }
+</style>
+
+<div class="app-shell">
+  <section id="screenSetup" class="screen setup-screen" aria-label="참가자 준비">
+    <header class="setup-header">
+      <p class="eyebrow">Casino Roulette</p>
+      <h1>돌림판</h1>
+      <p class="lede">참가자를 등록하고 무대로 이동해 한 명을 뽑아보세요.</p>
+    </header>
+
+    <div class="input-row">
+      <input id="nameInput" type="text" placeholder="이름을 입력하세요" maxlength="20" autocomplete="off" />
+      <button id="addBtn" type="button" class="btn btn-gold">추가</button>
+    </div>
+
+    <div id="chipList" class="chip-list" aria-live="polite"></div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="excludeCheckbox" />
+      <span>뽑힌 사람은 다음 판에서 제외</span>
+    </label>
+
+    <div class="setup-actions">
+      <button id="resetBtn" type="button" class="btn btn-ghost">초기화</button>
+      <span id="participantSummary" class="summary-text"></span>
+    </div>
+
+    <div class="history-block">
+      <p class="section-label">Recent Winners</p>
+      <ol id="historyList" class="history-list"></ol>
+    </div>
+
+    <button id="goStageBtn" type="button" class="btn btn-primary btn-large">룰렛 무대로 이동</button>
+  </section>
+
+  <section id="screenStage" class="screen stage-screen" hidden aria-label="룰렛 무대">
+    <div class="stage-glow" aria-hidden="true"></div>
+    <button id="backBtn" type="button" class="btn btn-ghost back-btn">← 참가자 수정</button>
+
+    <div class="stage-body">
+      <p class="eyebrow">Spin The Wheel</p>
+      <div class="wheel-wrap">
+        <div class="pointer" aria-hidden="true"></div>
+        <canvas id="wheelCanvas"></canvas>
+        <canvas id="confettiCanvas"></canvas>
+      </div>
+      <p id="stageStatus" class="stage-status"></p>
+      <button id="spinBtn" type="button" class="btn btn-primary btn-spin">스핀</button>
+      <p id="resultText" class="result-text"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = 'casino-roulette-state-v1';
+  var GEMS = ['#7c2d3a','#2e6b52','#2b5580','#5a3f72','#a8863f','#221f1c','#a15c36','#3b6669'];
+
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    var n = parseInt(hex,16);
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  }
+  function rgbToHex(r,g,b){
+    return '#'+[r,g,b].map(function(x){
+      return Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0');
+    }).join('');
+  }
+  function mix(hex, target, amt){
+    var a = hexToRgb(hex), b = hexToRgb(target);
+    return rgbToHex(a[0]+(b[0]-a[0])*amt, a[1]+(b[1]-a[1])*amt, a[2]+(b[2]-a[2])*amt);
+  }
+  function lighten(hex, amt){ return mix(hex, '#ffffff', amt); }
+  function darken(hex, amt){ return mix(hex, '#000000', amt); }
+
+  function loadState(){
+    var fallback = { participants: [], excludeDrawn: false, drawnIds: [], history: [] };
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return fallback;
+      var parsed = JSON.parse(raw);
+      return {
+        participants: Array.isArray(parsed.participants) ? parsed.participants : [],
+        excludeDrawn: !!parsed.excludeDrawn,
+        drawnIds: Array.isArray(parsed.drawnIds) ? parsed.drawnIds : [],
+        history: Array.isArray(parsed.history) ? parsed.history : []
+      };
+    }catch(e){
+      return fallback;
+    }
+  }
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){ /* storage unavailable — continue without persistence */ }
+  }
+
+  var state = loadState();
+  var uidCounter = 1;
+
+  function makeId(){
+    return 'p' + Date.now().toString(36) + (uidCounter++).toString(36);
+  }
+
+  // ---------- Screen switching ----------
+  var screenSetup = document.getElementById('screenSetup');
+  var screenStage = document.getElementById('screenStage');
+
+  function switchTo(showEl, hideEl, onShown){
+    hideEl.classList.add('fading');
+    window.setTimeout(function(){
+      hideEl.hidden = true;
+      hideEl.classList.remove('fading');
+      showEl.hidden = false;
+      if(onShown) onShown();
+      showEl.classList.add('fading');
+      void showEl.offsetWidth;
+      showEl.classList.remove('fading');
+    }, 300);
+  }
+
+  // ---------- Screen 1: participant setup ----------
+  var nameInput = document.getElementById('nameInput');
+  var addBtn = document.getElementById('addBtn');
+  var chipList = document.getElementById('chipList');
+  var excludeCheckbox = document.getElementById('excludeCheckbox');
+  var resetBtn = document.getElementById('resetBtn');
+  var participantSummary = document.getElementById('participantSummary');
+  var historyList = document.getElementById('historyList');
+  var goStageBtn = document.getElementById('goStageBtn');
+  var backBtn = document.getElementById('backBtn');
+
+  excludeCheckbox.checked = state.excludeDrawn;
+
+  function addParticipant(){
+    var name = nameInput.value.trim();
+    if(!name) return;
+    state.participants.push({ id: makeId(), name: name });
+    nameInput.value = '';
+    saveState();
+    renderSetup();
+    nameInput.focus();
+  }
+
+  addBtn.addEventListener('click', addParticipant);
+  nameInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      addParticipant();
+    }
+  });
+
+  excludeCheckbox.addEventListener('change', function(){
+    state.excludeDrawn = excludeCheckbox.checked;
+    saveState();
+    renderSetup();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    state.drawnIds = [];
+    state.history = [];
+    saveState();
+    renderSetup();
+  });
+
+  function removeParticipant(id){
+    state.participants = state.participants.filter(function(p){ return p.id !== id; });
+    state.drawnIds = state.drawnIds.filter(function(pid){ return pid !== id; });
+    saveState();
+    renderSetup();
+  }
+
+  function renderSetup(){
+    chipList.innerHTML = '';
+    if(state.participants.length === 0){
+      var hint = document.createElement('p');
+      hint.className = 'empty-hint';
+      hint.textContent = '아직 등록된 참가자가 없습니다.';
+      chipList.appendChild(hint);
+    } else {
+      state.participants.forEach(function(p){
+        var chip = document.createElement('span');
+        chip.className = 'chip' + (state.drawnIds.indexOf(p.id) > -1 ? ' drawn' : '');
+        var label = document.createElement('span');
+        label.textContent = p.name;
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.setAttribute('aria-label', p.name + ' 삭제');
+        del.textContent = '×';
+        del.addEventListener('click', function(){ removeParticipant(p.id); });
+        chip.appendChild(label);
+        chip.appendChild(del);
+        chipList.appendChild(chip);
+      });
+    }
+
+    var excludedCount = state.excludeDrawn ? state.drawnIds.length : 0;
+    participantSummary.textContent = '참가자 ' + state.participants.length + '명' + (excludedCount ? ' · 제외 ' + excludedCount + '명' : '');
+
+    historyList.innerHTML = '';
+    if(state.history.length === 0){
+      var li = document.createElement('li');
+      li.className = 'empty';
+      li.textContent = '아직 당첨 기록이 없습니다';
+      historyList.appendChild(li);
+    } else {
+      state.history.slice().reverse().slice(0, 10).forEach(function(h){
+        var row = document.createElement('li');
+        var name = document.createElement('span');
+        name.className = 'h-name';
+        name.textContent = h.name;
+        var time = document.createElement('span');
+        time.className = 'h-time';
+        time.textContent = h.time;
+        row.appendChild(name);
+        row.appendChild(time);
+        historyList.appendChild(row);
+      });
+    }
+  }
+
+  goStageBtn.addEventListener('click', function(){
+    switchTo(screenStage, screenSetup, enterStage);
+  });
+  backBtn.addEventListener('click', function(){
+    switchTo(screenSetup, screenStage);
+    renderSetup();
+  });
+
+  // ---------- Screen 2: roulette stage ----------
+  var wheelCanvas = document.getElementById('wheelCanvas');
+  var wheelCtx = wheelCanvas.getContext('2d');
+  var confettiCanvas = document.getElementById('confettiCanvas');
+  var confettiCtx = confettiCanvas.getContext('2d');
+  var wheelWrap = document.querySelector('.wheel-wrap');
+  var spinBtn = document.getElementById('spinBtn');
+  var resultText = document.getElementById('resultText');
+  var stageStatus = document.getElementById('stageStatus');
+
+  var activeParticipants = [];
+  var currentRotation = 0;   // radians, accumulates forever — never reset
+  var currentScale = 1;
+  var spinning = false;
+  var animFrameId = null;
+
+  function getActiveParticipants(){
+    if(!state.excludeDrawn) return state.participants.slice();
+    return state.participants.filter(function(p){ return state.drawnIds.indexOf(p.id) === -1; });
+  }
+
+  function sizeWheelCanvas(){
+    var rect = wheelCanvas.getBoundingClientRect();
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    var size = Math.max(1, Math.round(rect.width * dpr));
+    if(wheelCanvas.width !== size || wheelCanvas.height !== size){
+      wheelCanvas.width = size;
+      wheelCanvas.height = size;
+    }
+  }
+
+  function sizeConfettiCanvas(){
+    var rect = wheelWrap.getBoundingClientRect();
+    var dpr = Math.max(1, window.devicePixelRatio || 1);
+    confettiCanvas.width = Math.max(1, Math.round(rect.width * 1.4 * dpr));
+    confettiCanvas.height = Math.max(1, Math.round(rect.height * 1.4 * dpr));
+  }
+
+  function drawWheelBitmap(){
+    sizeWheelCanvas();
+    var W = wheelCanvas.width, H = wheelCanvas.height;
+    var cx = W/2, cy = H/2;
+    var R = Math.min(W,H)/2 * 0.98;
+    wheelCtx.clearRect(0,0,W,H);
+
+    if(activeParticipants.length === 0){
+      wheelCtx.beginPath();
+      wheelCtx.arc(cx,cy,R,0,Math.PI*2);
+      wheelCtx.fillStyle = '#17130f';
+      wheelCtx.fill();
+      wheelCtx.fillStyle = '#7d7260';
+      wheelCtx.font = '600 ' + Math.round(R*0.09) + 'px "Noto Sans KR", sans-serif';
+      wheelCtx.textAlign = 'center';
+      wheelCtx.textBaseline = 'middle';
+      wheelCtx.fillText('참가자 없음', cx, cy);
+      return;
+    }
+
+    var n = activeParticipants.length;
+    var slice = (Math.PI*2)/n;
+    var fontSize = Math.max(R*0.05, Math.min(R*0.085, R*0.9/Math.max(6,n)));
+
+    for(var i=0;i<n;i++){
+      var start = i*slice, end = (i+1)*slice, mid = start + slice/2;
+      var base = GEMS[i % GEMS.length];
+      var light = lighten(base, 0.3);
+      var dark = darken(base, 0.42);
+      var gx = cx + Math.cos(mid)*R*0.22;
+      var gy = cy + Math.sin(mid)*R*0.22;
+
+      var grad = wheelCtx.createRadialGradient(gx,gy,R*0.04, cx,cy,R);
+      grad.addColorStop(0, light);
+      grad.addColorStop(0.62, base);
+      grad.addColorStop(1, dark);
+
+      wheelCtx.beginPath();
+      wheelCtx.moveTo(cx,cy);
+      wheelCtx.arc(cx,cy,R,start,end);
+      wheelCtx.closePath();
+      wheelCtx.fillStyle = grad;
+      wheelCtx.fill();
+
+      wheelCtx.strokeStyle = 'rgba(0,0,0,.35)';
+      wheelCtx.lineWidth = Math.max(1, R*0.004);
+      wheelCtx.stroke();
+
+      // label position — always exactly at the wedge's mid-angle, independent of rotation
+      var labelR = R*0.62;
+      var lx = cx + Math.cos(mid)*labelR;
+      var ly = cy + Math.sin(mid)*labelR;
+
+      // label rotation — flip upside-down text on the left half (90°~270°) so it reads upright,
+      // then clamp the tilt near the top/bottom (12/6 o'clock) so it never turns fully sideways
+      var flip = mid > Math.PI/2 && mid < Math.PI*1.5;
+      var rot = mid + (flip ? Math.PI : 0);
+      rot = Math.atan2(Math.sin(rot), Math.cos(rot)); // normalize to (-PI, PI]
+      var maxTilt = Math.PI/3; // 60°
+      rot = Math.max(-maxTilt, Math.min(maxTilt, rot));
+
+      wheelCtx.save();
+      wheelCtx.translate(lx, ly);
+      wheelCtx.rotate(rot);
+      wheelCtx.fillStyle = '#f4ecdd';
+      wheelCtx.font = '600 ' + fontSize.toFixed(1) + 'px "Noto Sans KR", sans-serif';
+      wheelCtx.textAlign = 'center';
+      wheelCtx.textBaseline = 'middle';
+
+      var maxW = R*0.5;
+      var label = activeParticipants[i].name;
+      if(wheelCtx.measureText(label).width > maxW){
+        while(label.length > 1 && wheelCtx.measureText(label + '…').width > maxW){
+          label = label.slice(0, -1);
+        }
+        label = label + '…';
+      }
+      wheelCtx.fillText(label, 0, 0);
+      wheelCtx.restore();
+    }
+
+    // center hub cap
+    var hubR = R*0.085;
+    var hubGrad = wheelCtx.createRadialGradient(cx-hubR*0.3, cy-hubR*0.3, hubR*0.1, cx, cy, hubR);
+    hubGrad.addColorStop(0, '#f0d599');
+    hubGrad.addColorStop(1, '#8a6f38');
+    wheelCtx.beginPath();
+    wheelCtx.arc(cx,cy,hubR,0,Math.PI*2);
+    wheelCtx.fillStyle = hubGrad;
+    wheelCtx.fill();
+    wheelCtx.lineWidth = Math.max(1, R*0.005);
+    wheelCtx.strokeStyle = '#5c481f';
+    wheelCtx.stroke();
+  }
+
+  function applyTransform(rotationRad, scale){
+    wheelCanvas.style.transform = 'rotate(' + rotationRad + 'rad) scale(' + scale + ')';
+  }
+
+  function enterStage(){
+    activeParticipants = getActiveParticipants();
+    drawWheelBitmap();
+    applyTransform(currentRotation, currentScale);
+    resultText.textContent = '';
+    updateStageStatus();
+  }
+
+  function updateStageStatus(){
+    var excludedCount = state.excludeDrawn ? state.drawnIds.length : 0;
+    if(activeParticipants.length === 0){
+      stageStatus.textContent = state.participants.length === 0
+        ? '참가자를 먼저 등록해주세요.'
+        : '모든 참가자가 이미 뽑혔습니다. 초기화 후 다시 시도하세요.';
+      spinBtn.disabled = true;
+    } else {
+      stageStatus.textContent = '참가 중 ' + activeParticipants.length + '명' + (excludedCount ? ' · 제외 ' + excludedCount + '명' : '');
+      spinBtn.disabled = spinning;
+    }
+  }
+
+  function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+
+  function formatTime(){
+    var d = new Date();
+    var hh = String(d.getHours()).padStart(2,'0');
+    var mm = String(d.getMinutes()).padStart(2,'0');
+    return hh + ':' + mm;
+  }
+
+  function spin(){
+    if(spinning) return;
+    activeParticipants = getActiveParticipants();
+    if(activeParticipants.length === 0) return;
+
+    spinning = true;
+    spinBtn.disabled = true;
+    resultText.textContent = '';
+
+    var n = activeParticipants.length;
+    var winnerIndex = Math.floor(Math.random()*n);
+    var winner = activeParticipants[winnerIndex];
+    var slice = (Math.PI*2)/n;
+    var centerAngle = winnerIndex*slice + slice/2;
+    var pointerAngle = -Math.PI/2;
+    var twoPi = Math.PI*2;
+    var mod = function(a){ return ((a % twoPi) + twoPi) % twoPi; };
+
+    var targetMod = mod(pointerAngle - centerAngle);
+    var curMod = mod(currentRotation);
+    var delta = mod(targetMod - curMod);
+    var extraSpins = 6 + Math.random()*2;
+    delta += extraSpins*twoPi;
+
+    var startRotation = currentRotation;
+    var endRotation = currentRotation + delta;
+    var duration = 4800;
+    var startTime = null;
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function frame(now){
+      if(startTime === null) startTime = now;
+      var t = Math.min(1, (now - startTime) / duration);
+      var eased = easeOutCubic(t);
+      currentRotation = startRotation + (endRotation - startRotation) * eased;
+
+      var scale = 1;
+      if(!reduced){
+        var camT = Math.max(0, Math.min(1, (t - 0.7) / 0.3));
+        scale = 1 + 0.15 * easeOutCubic(camT);
+      }
+      currentScale = scale;
+      applyTransform(currentRotation, currentScale);
+
+      if(t < 1){
+        animFrameId = requestAnimationFrame(frame);
+      } else {
+        animFrameId = null;
+        spinning = false;
+        finishSpin(winner);
+      }
+    }
+    animFrameId = requestAnimationFrame(frame);
+  }
+
+  function finishSpin(winner){
+    resultText.textContent = winner.name + '님 당첨!';
+    var timeStr = formatTime();
+    state.history.push({ name: winner.name, time: timeStr });
+    if(state.excludeDrawn){
+      state.drawnIds.push(winner.id);
+    }
+    saveState();
+    activeParticipants = getActiveParticipants();
+    updateStageStatus();
+    launchConfetti();
+  }
+
+  spinBtn.addEventListener('click', spin);
+
+  // ---------- Confetti ----------
+  var confettiParticles = [];
+  var confettiRunning = false;
+
+  function launchConfetti(){
+    sizeConfettiCanvas();
+    var W = confettiCanvas.width, H = confettiCanvas.height;
+    var originX = W/2, originY = H*0.30;
+    var colors = GEMS.concat(['#e6c274']);
+    confettiParticles = [];
+    for(var i=0;i<90;i++){
+      var angle = -Math.PI/2 + (Math.random()-0.5)*Math.PI*1.1;
+      var speed = (2.5 + Math.random()*4.5) * (W/500);
+      confettiParticles.push({
+        x: originX, y: originY,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed - (W/500)*2,
+        size: (4 + Math.random()*5) * (W/500),
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: Math.random()*Math.PI*2,
+        vrot: (Math.random()-0.5)*0.3,
+        life: 0,
+        maxLife: 70 + Math.random()*40
+      });
+    }
+    if(!confettiRunning){
+      confettiRunning = true;
+      requestAnimationFrame(confettiFrame);
+    }
+  }
+
+  function confettiFrame(){
+    var W = confettiCanvas.width, H = confettiCanvas.height;
+    confettiCtx.clearRect(0,0,W,H);
+    var gravity = 0.12 * (W/500);
+    var alive = false;
+
+    for(var i=0;i<confettiParticles.length;i++){
+      var p = confettiParticles[i];
+      if(p.life >= p.maxLife) continue;
+      p.vy += gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vrot;
+      p.life++;
+      alive = true;
+
+      var fadeStart = p.maxLife*0.7;
+      var alpha = p.life > fadeStart ? Math.max(0, 1 - (p.life-fadeStart)/(p.maxLife-fadeStart)) : 1;
+
+      confettiCtx.save();
+      confettiCtx.globalAlpha = alpha;
+      confettiCtx.translate(p.x, p.y);
+      confettiCtx.rotate(p.rot);
+      confettiCtx.fillStyle = p.color;
+      confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      confettiCtx.restore();
+    }
+
+    if(alive){
+      requestAnimationFrame(confettiFrame);
+    } else {
+      confettiRunning = false;
+      confettiCtx.clearRect(0,0,W,H);
+    }
+  }
+
+  // ---------- Resize handling ----------
+  var resizeTimer = null;
+  window.addEventListener('resize', function(){
+    if(resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if(!screenStage.hidden){
+        drawWheelBitmap();
+        applyTransform(currentRotation, currentScale);
+        sizeConfettiCanvas();
+      }
+    }, 120);
+  });
+
+  // ---------- Boot ----------
+  renderSetup();
+})();
+</script>
