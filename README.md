@@ -12,7 +12,7 @@
 ## 관련 링크
 
 - 쇼케이스 아티팩트(라이브 데모): https://claude.ai/artifact/EcxNMtyC1YQ3eH3ttEkZJR
-- 배포용 프롬프트 문서(Claude Docs): https://claude.ai/artifact/4410601e-5d11-46ca-8267-5d3e3f3948d3
+- 배포용 프롬프트 문서(GitHub Pages, 로그인 불필요): https://hyun02063185-ax-beginner.github.io/Cody_Vibe_Coding/prompts/
 - 강의 중 띄우는 슬라이드(Claude Slides): https://claude.ai/artifact/2GErNRHuSJ1rLw232mjcGz
 
 ## 진행 흐름 요약
