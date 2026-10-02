@@ -38,6 +38,20 @@
 </div>
 <p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Live Build · 실시간 코딩</p>
 </section>
+<section class="slide" id="vibe-origin" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:center; gap:48px">
+<p style="font-size:28px; color:#d9a544; font-weight:600">ORIGIN STORY</p>
+<h1 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.2">바이브코딩, 그 이름은<br>어디서 왔을까요?</h1>
+<div style="display:flex; flex-direction:column; gap:20px; background:#1c2033; padding:48px 56px; border-radius:24px; width:1550px">
+<p style="font-size:34px; color:#f2ede0; line-height:1.6">"There's a new kind of coding I call 'vibe coding', where you fully give in to the vibes, embrace exponentials, and forget that the code even exists."</p>
+<p style="font-size:26px; color:#c9c4b8; line-height:1.6">"완전히 분위기(vibe)에 맡기고, 기하급수적으로 발전하는 AI를 받아들이면서, 코드가 존재한다는 사실조차 잊어버리는 새로운 방식의 코딩이 있다 — 나는 이걸 '바이브코딩'이라고 부른다."</p>
+</div>
+<div style="display:flex; align-items:center; gap:24px">
+<p style="font-size:26px; color:#e6c37a; font-weight:600">Andrej Karpathy</p>
+<p style="font-size:24px; color:#a8a29a">전 테슬라 AI 총괄 · OpenAI 창립 멤버 · 2025.02, X(트위터)</p>
+<p style="font-size:22px; color:#14161f; background:#d9a544; padding:8px 20px; border-radius:999px; font-weight:700">2025 콜린스사전 올해의 단어</p>
+</div>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Vibe Coding · 용어의 시작</p>
+</section>
 <section class="slide" id="vibe-def" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:44px">
 <h2 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.15">바이브코딩이 뭘까요?</h2>
 <p style="font-size:32px; color:#e7e2d4; line-height:1.6; width:1550px">말로 설명하듯 AI에게 원하는 기능을 이야기하면, AI가 그 자리에서 실제로 작동하는 코드로 옮겨주는 방식의 개발입니다.</p>
@@ -143,7 +157,7 @@
 <div id="notes"></div>
 <div id="hud"><span id="pg"></span> · ←/→ 이동 · N 발표자 노트 · F 전체화면</div>
 <script>
-var notes=["안녕하세요! 오늘은 15분 동안 여러분과 함께 AI로 앱 하나를 직접 만들어볼 거예요. 이름하여 럭키 룰렛, 발표나 이벤트에서 바로 써먹을 수 있는 재미있는 도구입니다.", "자, 그럼 바로 시작해볼게요. 오늘 만들 건 럭키 룰렛이에요. 이름을 넣으면 랜덤으로 한 명을 뽑아주는 앱인데, 발표 순서 정하기나 조 편성, 퀴즈 정답자 뽑기처럼 강의 현장에서 바로 쓸 수 있어요. 제가 미리 준비해온 프롬프트 하나를 그대로 실행할 건데요, 이 화면에 결과가 뜨는 동안 잠깐 바이브코딩에 대해 같이 이야기 나눠볼게요.", "바이브코딩이라는 말, 다들 한 번쯤 들어보셨죠? 쉽게 말하면 말로 설명하면 AI가 코드로 옮겨주는 방식이에요. 문법 몰라도 되고, 완벽하지 않아도 돼요. 대화하듯 요청하고 고쳐가면서 완성하면 됩니다.", "그런데 여기서 궁금하실 거예요. 우리가 평소에 쓰는 챗GPT나 클로드 채팅이랑, 지금 이 코딩 앱이랑 뭐가 다르냐. 저는 이렇게 설명해요. 두뇌, 즉 AI는 똑같아요. 그런데 채팅은 클라우드, 그러니까 서버 안에서만 일어나는 대화고요, 코딩 앱은 내 컴퓨터, 로컬에서 직접 실행돼서 파일을 만들고 고칠 수가 있어요. 그래서 코딩이 가능한 거예요.", "실제로 만들다 보면 버그, 꼭 만나게 됩니다. 저도 방금 그랬죠. 당황하지 마시고 이 다섯 단계로 대응하시면 돼요. 특히 1번부터 3번까지만 잘 전달해도 대부분 해결이 돼요.", "오늘 나눠드린 프롬프트 자료, 집에 가셔서 꼭 한번 그대로 따라 만들어보세요. 오류가 나도 괜찮아요, 방금 배운 방법으로 대응하시면 됩니다. 이제 여러분 차례입니다!", "스캔하시면 오늘 실습한 프롬프트, 완성본, 그리고 도구별로 만들어본 로컬 결과물까지 한 페이지에 정리된 자료 모음 사이트로 이동합니다. 깃허브 페이지라 로그인 없이 바로 열립니다. 지금 바로 스캔해두시고, 이따 집에 가셔서 천천히 따라 해보세요."];
+var notes=["안녕하세요! 오늘은 15분 동안 여러분과 함께 AI로 앱 하나를 직접 만들어볼 거예요. 이름하여 럭키 룰렛, 발표나 이벤트에서 바로 써먹을 수 있는 재미있는 도구입니다.", "자, 그럼 바로 시작해볼게요. 오늘 만들 건 럭키 룰렛이에요. 이름을 넣으면 랜덤으로 한 명을 뽑아주는 앱인데, 발표 순서 정하기나 조 편성, 퀴즈 정답자 뽑기처럼 강의 현장에서 바로 쓸 수 있어요. 제가 미리 준비해온 프롬프트 하나를 그대로 실행할 건데요, 이 화면에 결과가 뜨는 동안 잠깐 바이브코딩에 대해 같이 이야기 나눠볼게요.", "바이브코딩이라는 말, 사실 생긴 지 얼마 안 됐어요. 2025년 2월, 테슬라 AI 총괄을 지낸 안드레 카파시가 트위터에 올린 한 줄짜리 글에서 시작됐어요. 분위기에 맡기고 코드가 있다는 것조차 잊어버리는 코딩이라는 뜻인데, 그해 콜린스사전 올해의 단어로 뽑힐 만큼 퍼졌어요. 그만큼 지금 우리가 하려는 방식이 전 세계적으로 주목받고 있다는 거겠죠. 자, 그럼 좀 더 구체적으로 바이브코딩이 뭔지 볼까요?", "바이브코딩이라는 말, 다들 한 번쯤 들어보셨죠? 쉽게 말하면 말로 설명하면 AI가 코드로 옮겨주는 방식이에요. 문법 몰라도 되고, 완벽하지 않아도 돼요. 대화하듯 요청하고 고쳐가면서 완성하면 됩니다.", "그런데 여기서 궁금하실 거예요. 우리가 평소에 쓰는 챗GPT나 클로드 채팅이랑, 지금 이 코딩 앱이랑 뭐가 다르냐. 저는 이렇게 설명해요. 두뇌, 즉 AI는 똑같아요. 그런데 채팅은 클라우드, 그러니까 서버 안에서만 일어나는 대화고요, 코딩 앱은 내 컴퓨터, 로컬에서 직접 실행돼서 파일을 만들고 고칠 수가 있어요. 그래서 코딩이 가능한 거예요.", "실제로 만들다 보면 버그, 꼭 만나게 됩니다. 저도 방금 그랬죠. 당황하지 마시고 이 다섯 단계로 대응하시면 돼요. 특히 1번부터 3번까지만 잘 전달해도 대부분 해결이 돼요.", "오늘 나눠드린 프롬프트 자료, 집에 가셔서 꼭 한번 그대로 따라 만들어보세요. 오류가 나도 괜찮아요, 방금 배운 방법으로 대응하시면 됩니다. 이제 여러분 차례입니다!", "스캔하시면 오늘 실습한 프롬프트, 완성본, 그리고 도구별로 만들어본 로컬 결과물까지 한 페이지에 정리된 자료 모음 사이트로 이동합니다. 깃허브 페이지라 로그인 없이 바로 열립니다. 지금 바로 스캔해두시고, 이따 집에 가셔서 천천히 따라 해보세요."];
 var slides=[].slice.call(document.querySelectorAll('.slide')),stage=document.getElementById('stage'),i=0;
 function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate('+(innerWidth-1920*s)/2+'px,'+(innerHeight-1080*s)/2+'px) scale('+s+')'}
 function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
