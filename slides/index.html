@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이브코딩 럭키 룰렛 — 강의 슬라이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+  .slide{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .3s}
+  .slide.on{opacity:1;pointer-events:auto}
+  .slide h1,.slide h2,.slide h3,.slide p,.slide ul{margin:0}
+  .slide ul{padding-left:40px}
+  #hud{position:fixed;right:16px;bottom:12px;color:#7d7a70;font:14px/1 "Noto Sans KR",sans-serif;z-index:5;user-select:none}
+  #notes{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);color:#f2ede0;font:18px/1.6 "Noto Sans KR",sans-serif;padding:16px 24px;z-index:4;display:none}
+  #notes.show{display:block}
+  .nav{position:fixed;top:0;bottom:0;width:20%;z-index:3;cursor:pointer}
+  #prev{left:0}#next{right:0}
+</style>
+</head>
+<body>
+<div id="stage">
+<section class="slide" id="cover" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:center; gap:40px">
+<p style="font-size:28px; color:#d9a544; font-weight:600">VIBE CODING LIVE DEMO</p>
+<h1 style="font-family:'Noto Serif KR', serif; font-size:104px; font-weight:700; line-height:1.2; color:#f2ede0">바이브코딩으로<br>완성하는 럭키 룰렛</h1>
+<p style="font-size:34px; color:#c9c4b8; font-weight:400; width:1500px">AI와 함께, 지금 이 자리에서 앱 하나를 처음부터 끝까지 만들어봅니다</p>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">2026 제2회 대한민국 강사 강의 뽐내기 대회</p>
+</section>
+<section class="slide" id="start-cue" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:center; gap:44px">
+<p style="font-size:30px; color:#d9a544; font-weight:600">STEP 01 · 라이브 코딩</p>
+<h1 style="font-family:'Noto Serif KR', serif; font-size:88px; font-weight:700; line-height:1.25; color:#f2ede0">지금부터 실시간으로<br>코딩을 시작합니다</h1>
+<div style="display:flex; flex-direction:column; gap:18px; background:#1c2033; padding:44px; border-radius:24px; width:1350px">
+<p style="font-size:28px; color:#e6c37a; line-height:1.6"><b>오늘 만들 것: 럭키 룰렛</b> — 이름을 넣으면 랜덤으로 한 명을 뽑아주는 웹앱이에요. 발표 순서 정하기, 조 편성, 퀴즈 정답자 뽑기처럼 강의 현장에서 바로 써먹을 수 있는 도구입니다.</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.6">준비된 프롬프트 하나를 그대로 실행합니다. 화면이 어떻게 채워지는지, 어떤 순서로 완성되는지 함께 지켜봐 주세요.</p>
+<p style="font-size:24px; color:#a8a29a; line-height:1.6">참가자 입력 화면 → 룰렛 그리기 → 회전 애니메이션 순서로 만들어집니다.</p>
+</div>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Live Build · 실시간 코딩</p>
+</section>
+<section class="slide" id="vibe-def" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:44px">
+<h2 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.15">바이브코딩이 뭘까요?</h2>
+<p style="font-size:32px; color:#e7e2d4; line-height:1.6; width:1550px">말로 설명하듯 AI에게 원하는 기능을 이야기하면, AI가 그 자리에서 실제로 작동하는 코드로 옮겨주는 방식의 개발입니다.</p>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:28px">
+<div style="display:flex; flex-direction:column; gap:12px; background:#1c2033; padding:36px; border-radius:20px">
+<h3 style="font-size:30px; font-weight:700; color:#d9a544">대화하듯 요청해요</h3>
+<p style="font-size:24px; color:#c9c4b8; line-height:1.5">문법이나 명령어를 몰라도, 원하는 것을 문장으로 설명하면 됩니다</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#1c2033; padding:36px; border-radius:20px">
+<h3 style="font-size:30px; font-weight:700; color:#d9a544">바로바로 확인해요</h3>
+<p style="font-size:24px; color:#c9c4b8; line-height:1.5">요청한 즉시 결과물을 눈으로 보고, 바로 다음 요청으로 다듬어갑니다</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#1c2033; padding:36px; border-radius:20px">
+<h3 style="font-size:30px; font-weight:700; color:#d9a544">고쳐가며 완성해요</h3>
+<p style="font-size:24px; color:#c9c4b8; line-height:1.5">한 번에 완벽하지 않아도, 대화를 주고받으며 조금씩 완성도를 높여갑니다</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#1c2033; padding:36px; border-radius:20px">
+<h3 style="font-size:30px; font-weight:700; color:#d9a544">전공 지식이 없어도 돼요</h3>
+<p style="font-size:24px; color:#c9c4b8; line-height:1.5">코딩을 몰라도, 아이디어와 대화만으로 실제 작동하는 결과물을 만듭니다</p>
+</div>
+</div>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Vibe Coding · 오늘의 핵심 개념</p>
+</section>
+<section class="slide" id="cloud-vs-local" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.15">AI 챗봇과 코딩 앱,<br>뭐가 다를까요?</h2>
+<div style="display:flex; align-items:center; gap:28px">
+<div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#1c2033; padding:44px; border-radius:20px; border-top:6px solid #4f8fd1">
+<h3 style="font-size:34px; font-weight:700; color:#8bc0e8">일반 AI 채팅</h3>
+<p style="font-size:24px; color:#a8a29a">클라우드 (서버)</p>
+<ul style="font-size:26px; color:#e7e2d4; line-height:1.7">
+<li>대화만 오고 가요</li>
+<li>내 컴퓨터의 파일은 못 만들어요</li>
+<li>예: 챗GPT, 클로드 웹채팅</li>
+</ul>
+</div>
+<div style="width:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px">
+<p style="font-size:64px; color:#7d7a70; font-weight:700">→</p>
+<p style="font-size:22px; color:#a8a29a">같은 AI, 다른 공간</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#1c2033; padding:44px; border-radius:20px; border-top:6px solid #d9a544">
+<h3 style="font-size:34px; font-weight:700; color:#e6c37a">바이브코딩 앱</h3>
+<p style="font-size:24px; color:#a8a29a">로컬 (내 컴퓨터)</p>
+<ul style="font-size:26px; color:#e7e2d4; line-height:1.7">
+<li>내 컴퓨터에서 직접 실행돼요</li>
+<li>파일을 생성하고 수정할 수 있어요</li>
+<li>예: 클로드 코드, 커서, 코덱스</li>
+</ul>
+</div>
+</div>
+<p style="font-size:28px; color:#c9c4b8; line-height:1.6; width:1600px">두뇌(AI)는 똑같아요. 다만 일하는 장소가 클라우드냐, 내 컴퓨터냐가 다를 뿐이에요 — 그래서 파일을 직접 만들고 고치려면, 로컬에서 동작하는 코딩 앱이 필요합니다.</p>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Cloud vs Local · 도구의 차이</p>
+</section>
+<section class="slide" id="bug-response" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+<h2 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.15">버그가 생기면 이렇게 대응하세요</h2>
+<div style="display:flex; flex-direction:column; gap:18px">
+<div style="display:flex; align-items:center; gap:28px; background:#1c2033; padding:24px 36px; border-radius:16px">
+<p style="width:64px; font-size:38px; font-weight:700; color:#d9a544">1</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.4">화면을 캡처하세요 — 스크린샷 한 장이면 충분해요</p>
+</div>
+<div style="display:flex; align-items:center; gap:28px; background:#1c2033; padding:24px 36px; border-radius:16px">
+<p style="width:64px; font-size:38px; font-weight:700; color:#d9a544">2</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.4">기대했던 모습과 실제로 나온 모습을 각각 적어보세요</p>
+</div>
+<div style="display:flex; align-items:center; gap:28px; background:#1c2033; padding:24px 36px; border-radius:16px">
+<p style="width:64px; font-size:38px; font-weight:700; color:#d9a544">3</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.4">어떤 순서로 하면 같은 문제가 다시 나타나는지 적어보세요</p>
+</div>
+<div style="display:flex; align-items:center; gap:28px; background:#1c2033; padding:24px 36px; border-radius:16px">
+<p style="width:64px; font-size:38px; font-weight:700; color:#d9a544">4</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.4">가능하다면 개발자도구 콘솔의 에러 메시지를 복사해서 붙여넣으세요</p>
+</div>
+<div style="display:flex; align-items:center; gap:28px; background:#1c2033; padding:24px 36px; border-radius:16px">
+<p style="width:64px; font-size:38px; font-weight:700; color:#d9a544">5</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.4">한 번에 다 고치려 하지 말고, 요청 범위를 좁혀서 다시 요청하세요</p>
+</div>
+</div>
+<p style="font-size:26px; color:#a8a29a; line-height:1.5; width:1600px">개발자도구가 어렵게 느껴진다면 괜찮아요 — 1번부터 3번까지만 잘 전달해도 대부분 해결할 수 있어요</p>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Debugging · 버그 대응 5단계</p>
+</section>
+<section class="slide" id="closing" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:center; gap:48px">
+<h2 style="font-family:'Noto Serif KR', serif; font-size:72px; font-weight:700; line-height:1.15">오늘 나눠드린 자료,<br>이렇게 활용하세요</h2>
+<div style="display:flex; flex-direction:column; gap:20px; background:#1c2033; padding:44px; border-radius:20px; width:1500px">
+<p style="font-size:28px; color:#e7e2d4; line-height:1.6">1. 기본 프롬프트로 먼저 똑같이 따라 만들어보세요</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.6">2. 익숙해지면 심화 버전에 도전해서 회전 연출을 더해보세요</p>
+<p style="font-size:28px; color:#e7e2d4; line-height:1.6">3. 오류가 나면, 방금 배운 5단계 대응법 그대로 시도해보세요</p>
+</div>
+<p style="font-size:34px; color:#d9a544; font-weight:600; width:1600px">이제 여러분 차례입니다 — 오늘의 룰렛을, 여러분만의 방식으로 만들어보세요</p>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Wrap-up · 오늘의 자료 활용법</p>
+</section>
+<section class="slide" id="material-qr" data-transition="fade" style="background:#14161f; color:#f2ede0; font-family:'Noto Sans KR', sans-serif; padding:128px 128px 160px; display:flex; align-items:center; gap:96px">
+<div style="flex:1; display:flex; flex-direction:column; gap:32px">
+<p style="font-size:28px; color:#d9a544; font-weight:600">TAKE HOME</p>
+<h1 style="font-family:'Noto Serif KR', serif; font-size:80px; font-weight:700; line-height:1.25; color:#f2ede0">오늘 자료,<br>QR코드로 받아가세요</h1>
+<p style="font-size:30px; color:#c9c4b8; line-height:1.6; width:800px">오늘 만든 프롬프트·완성본·로컬 실습 비교까지 한 페이지에 모아둔 자료 모음 사이트로 연결됩니다. 로그인 없이 누구나 열어볼 수 있어요.</p>
+</div>
+<div style="width:560px; height:560px; background:#ffffff; border-radius:32px; display:flex; align-items:center; justify-content:center">
+<img src="qr.svg" alt="자료 모음 페이지 QR코드" style="width:460px; height:460px; object-fit:contain">
+</div>
+<p style="position:absolute; left:128px; bottom:64px; font-size:24px; color:#7d7a70; width:1400px">Take Home · 오늘 자료 받아가기</p>
+</section>
+</div>
+<div class="nav" id="prev"></div><div class="nav" id="next"></div>
+<div id="notes"></div>
+<div id="hud"><span id="pg"></span> · ←/→ 이동 · N 발표자 노트 · F 전체화면</div>
+<script>
+var notes=["안녕하세요! 오늘은 15분 동안 여러분과 함께 AI로 앱 하나를 직접 만들어볼 거예요. 이름하여 럭키 룰렛, 발표나 이벤트에서 바로 써먹을 수 있는 재미있는 도구입니다.", "자, 그럼 바로 시작해볼게요. 오늘 만들 건 럭키 룰렛이에요. 이름을 넣으면 랜덤으로 한 명을 뽑아주는 앱인데, 발표 순서 정하기나 조 편성, 퀴즈 정답자 뽑기처럼 강의 현장에서 바로 쓸 수 있어요. 제가 미리 준비해온 프롬프트 하나를 그대로 실행할 건데요, 이 화면에 결과가 뜨는 동안 잠깐 바이브코딩에 대해 같이 이야기 나눠볼게요.", "바이브코딩이라는 말, 다들 한 번쯤 들어보셨죠? 쉽게 말하면 말로 설명하면 AI가 코드로 옮겨주는 방식이에요. 문법 몰라도 되고, 완벽하지 않아도 돼요. 대화하듯 요청하고 고쳐가면서 완성하면 됩니다.", "그런데 여기서 궁금하실 거예요. 우리가 평소에 쓰는 챗GPT나 클로드 채팅이랑, 지금 이 코딩 앱이랑 뭐가 다르냐. 저는 이렇게 설명해요. 두뇌, 즉 AI는 똑같아요. 그런데 채팅은 클라우드, 그러니까 서버 안에서만 일어나는 대화고요, 코딩 앱은 내 컴퓨터, 로컬에서 직접 실행돼서 파일을 만들고 고칠 수가 있어요. 그래서 코딩이 가능한 거예요.", "실제로 만들다 보면 버그, 꼭 만나게 됩니다. 저도 방금 그랬죠. 당황하지 마시고 이 다섯 단계로 대응하시면 돼요. 특히 1번부터 3번까지만 잘 전달해도 대부분 해결이 돼요.", "오늘 나눠드린 프롬프트 자료, 집에 가셔서 꼭 한번 그대로 따라 만들어보세요. 오류가 나도 괜찮아요, 방금 배운 방법으로 대응하시면 됩니다. 이제 여러분 차례입니다!", "스캔하시면 오늘 실습한 프롬프트, 완성본, 그리고 도구별로 만들어본 로컬 결과물까지 한 페이지에 정리된 자료 모음 사이트로 이동합니다. 깃허브 페이지라 로그인 없이 바로 열립니다. 지금 바로 스캔해두시고, 이따 집에 가셔서 천천히 따라 해보세요."];
+var slides=[].slice.call(document.querySelectorAll('.slide')),stage=document.getElementById('stage'),i=0;
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate('+(innerWidth-1920*s)/2+'px,'+(innerHeight-1080*s)/2+'px) scale('+s+')'}
+function go(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+  document.getElementById('pg').textContent=(i+1)+' / '+slides.length;document.getElementById('notes').textContent=notes[i];history.replaceState(null,'','#'+(i+1))}
+addEventListener('resize',fit);fit();
+addEventListener('keydown',function(e){var k=e.key;
+  if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter')go(i+1);
+  else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace')go(i-1);
+  else if(k==='Home')go(0);else if(k==='End')go(slides.length-1);
+  else if(k==='n'||k==='N')document.getElementById('notes').classList.toggle('show');
+  else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}});
+document.getElementById('next').onclick=function(){go(i+1)};
+document.getElementById('prev').onclick=function(){go(i-1)};
+go((parseInt(location.hash.slice(1))||1)-1);
+</script>
+</body>
+</html>

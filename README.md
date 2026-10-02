@@ -11,9 +11,9 @@
 
 ## 관련 링크
 
-- 쇼케이스 아티팩트(라이브 데모): https://claude.ai/artifact/EcxNMtyC1YQ3eH3ttEkZJR
+- 쇼케이스(라이브 데모, 로그인 불필요): https://hyun02063185-ax-beginner.github.io/Cody_Vibe_Coding/app/wheel-picker.html
 - 배포용 프롬프트 문서(GitHub Pages, 로그인 불필요): https://hyun02063185-ax-beginner.github.io/Cody_Vibe_Coding/prompts/
-- 강의 중 띄우는 슬라이드(Claude Slides): https://claude.ai/artifact/2GErNRHuSJ1rLw232mjcGz
+- 강의 슬라이드(GitHub Pages, 로그인 불필요): https://hyun02063185-ax-beginner.github.io/Cody_Vibe_Coding/slides/
 
 ## 진행 흐름 요약
 
